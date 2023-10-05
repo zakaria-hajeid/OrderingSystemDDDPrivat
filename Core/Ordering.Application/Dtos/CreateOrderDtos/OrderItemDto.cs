@@ -6,7 +6,18 @@ using System.Threading.Tasks;
 
 namespace Ordering.Application.Dtos.CreateOrderDtos
 {
-    public class OrderItemDto
+    public record OrderItemDto
     {
+        public int ProductId { get; init; }
+
+        public string ProductName { get; init; }
+
+        public decimal UnitPrice { get; init; }
+
+        public decimal Discount { get; init; }
+
+        public int Units { get; init; }
+        public string PictureUrl { get; init; }
+
     }
 }

@@ -19,7 +19,7 @@ public class Order : AggregateRoot
     private int? _buyerId;
     private string _description;
 
-    private Order( Address address, int? buyerId = null, int? paymentMethodId = null) :this()
+    private Order(Address address, int? buyerId = null, int? paymentMethodId = null) : this()
     {
         _buyerId = buyerId;
         _paymentMethodId = paymentMethodId;
@@ -28,25 +28,27 @@ public class Order : AggregateRoot
         Address = address;
 
     }
-    protected Order()
+    public Order()
     {
         _orderItems = new();
     }
-    private  void AddOrderStartedDomainEvent( string userName, int cardTypeId, string cardNumber,
+    private void AddOrderStartedDomainEvent(string userId, string userName, int cardTypeId, string cardNumber,
             string cardSecurityNumber, string cardHolderName, DateTime cardExpiration)
     {
-        var orderStartedDomainEvent = new OrderStartedDomainEvent(userName);
+        var orderStartedDomainEvent = new OrderStartedDomainEvent(this, userId, userName, cardTypeId,
+                                                                    cardNumber, cardSecurityNumber,
+                                                                    cardHolderName, cardExpiration);
 
         this.AddDomainEvent(orderStartedDomainEvent);
 
     }
 
 
-    public static Order CreateOrder( Address address, string userId, string userName, int cardTypeId, string cardNumber, string cardSecurityNumber,
+    public static Order CreateOrder(Address address, string userId, string userName, int cardTypeId, string cardNumber, string cardSecurityNumber,
             string cardHolderName, DateTime cardExpiration, int? buyerId = null, int? paymentMethodId = null)
     {
-        Order order = new Order( address, buyerId, paymentMethodId);
-        order.AddOrderStartedDomainEvent( userName, cardTypeId, cardNumber,
+        Order order = new Order(address, buyerId, paymentMethodId);
+        order.AddOrderStartedDomainEvent(userId, userName, cardTypeId, cardNumber,
                                     cardSecurityNumber, cardHolderName, cardExpiration);
         return order;
     }
@@ -80,7 +82,7 @@ public class Order : AggregateRoot
         {
             //add validated new order item
 
-            var orderItem =  OrderItem.Create(productId, productName, unitPrice, discount, pictureUrl, units);
+            var orderItem = OrderItem.Create(productId, productName, unitPrice, discount, pictureUrl, units);
             if (orderItem.IsSuccess)
             {
                 _orderItems.Add(orderItem.Value);

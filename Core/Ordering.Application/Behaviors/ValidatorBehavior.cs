@@ -23,8 +23,11 @@ namespace Ordering.Application.Behaviors
         }
         public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
+            if (_validators.Any())//if no have any validators for command 
+            {
+                return await next();
+            }
             var context = new ValidationContext<TRequest>(request);
-
             var validationFailures = await Task.WhenAll(
             _validators.Select(validator => validator.ValidateAsync(context)));
 
@@ -56,7 +59,7 @@ namespace Ordering.Application.Behaviors
             {
                 return (ValidationResult<TResult>.WithErrors(errors) as TResult)!;
             }
-            object validationResult = typeof(ValidationResult<>)
+            object? validationResult = typeof(ValidationResult<>)
                                      .GetGenericTypeDefinition()
                                      .MakeGenericType(typeof(TResult).GenericTypeArguments[0])
                                      .GetMethod(nameof(ValidationResult<TResult>.WithErrors))!

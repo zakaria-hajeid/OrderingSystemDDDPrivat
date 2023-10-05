@@ -1,6 +1,7 @@
 ﻿using Ordering.Application.Behaviors;
 using Ordering.Application;
 using MediatR.NotificationPublishers;
+using FluentValidation;
 
 namespace OrderingSystemDDD.Configration
 {
@@ -18,6 +19,8 @@ namespace OrderingSystemDDD.Configration
                 cfg.AddOpenBehavior(typeof(ValidatorBehavior<,>));
                 cfg.AddOpenBehavior(typeof(TransactionBehavior<,>));
             });
+            services.AddValidatorsFromAssembly(AssemblyReference.assembly);
+
         }
     }
 }

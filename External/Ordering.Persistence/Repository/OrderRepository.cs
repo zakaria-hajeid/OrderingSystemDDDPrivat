@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Ordering.Domain.AggregatesModel.OrderAggregate;
 using Ordering.Domain.Prematives;
 using Ordering.Domain.Repository;
@@ -21,47 +22,17 @@ namespace Ordering.Persistence.Repository
 //            ALSO THIS CONTEXT ALREADY UNIT OF WORK) AND SAVE CHANGES
 //MEANS THE REPO WILL DECIDE THE CONTEXT TYPE AND THE UNIT OF WORK THAT WILL WORK WITH IT
     /// </summary>
-    public sealed class OrderRepository : IOrderRepository
+    public sealed class OrderRepository : Repository<Order>, IOrderRepository
     {
         private readonly ApplicationDbContext _context;
-        public IUnitOfWork UnitOfWork => _context;
-        public OrderRepository(ApplicationDbContext context)
-        {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
-        }
-        public Task Add(Order entity)
-        {
-            throw new NotImplementedException();
-        }
 
-        public Task AddRangeAsync(IEnumerable<Order> entities)
-        {
-            throw new NotImplementedException();
-        }
+        public IUnitOfWork UnitOfWork { get => _context; set => throw new NotImplementedException(); }
 
-        public void Delete(Order entityToDelete)
+        public OrderRepository(ApplicationDbContext context):base(context) 
         {
-            throw new NotImplementedException();
+            _context= context;
         }
+        
 
-        public void Delete(object id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Order?> GetByIdAsync(Guid id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Update(Order entityToUpdate)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void UpdateRange(IEnumerable<Order> entities)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

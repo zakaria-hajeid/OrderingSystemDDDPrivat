@@ -1,4 +1,5 @@
 ﻿
+using Ordering.Domain.AggregatesModel.OrderAggregate;
 using Ordering.Domain.Prematives;
 
 namespace Ordering.Domain.Events;
@@ -32,6 +33,9 @@ namespace Ordering.Domain.Events;
         CardExpiration = cardExpiration;
     }
 }*/
-public sealed record OrderStartedDomainEvent(string userName):IDomainEvent;
+public sealed record OrderStartedDomainEvent(Order order, string userId, string userName,
+                                       int cardTypeId, string cardNumber,
+                                       string cardSecurityNumber, string cardHolderName,
+                                       DateTime cardExpiration) :IDomainEvent;
 
 

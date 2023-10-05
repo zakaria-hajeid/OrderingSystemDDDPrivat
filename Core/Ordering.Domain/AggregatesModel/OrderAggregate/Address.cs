@@ -13,7 +13,7 @@ public class Address : ValueObject
 
     public Address() { }
 
-    public Address(string street, string city, string state, string country, string zipcode)
+    private Address(string street, string city, string state, string country, string zipcode)
     {
         Street = street;
         City = city;
@@ -22,6 +22,10 @@ public class Address : ValueObject
         ZipCode = zipcode;
     }
 
+    public static Address CreateAddress(string street, string city, string state, string country, string zipcode) {
+
+        return new Address(street, city, state, country, zipcode);
+    }
     protected override IEnumerable<object> GetEqualityComponents()
     {
         yield return Street;

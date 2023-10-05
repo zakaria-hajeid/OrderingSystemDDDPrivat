@@ -7,14 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation.ValidatorAttribute" Version="8.0.0" />
+    <Compile Remove="Abstraction\CQRS\**" />
+    <EmbeddedResource Remove="Abstraction\CQRS\**" />
+    <None Remove="Abstraction\CQRS\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="11.7.1" />
     <PackageReference Include="Mapster" Version="7.3.0" />
     <PackageReference Include="MediatR" Version="12.1.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Abstraction\CQRS\Handler\" />
     <Folder Include="Order\Commands\" />
     <Folder Include="Order\Queries\" />
   </ItemGroup>
