@@ -28,7 +28,10 @@ public abstract class Entity : IEquatable<Entity>
 
         return this.Id == entity.Id;
     }
-
+    public bool IsTransient()//to check if id == 0 to add or update entity 
+    {
+        return this.Id == default;
+    }
     public override int GetHashCode()
     {
 

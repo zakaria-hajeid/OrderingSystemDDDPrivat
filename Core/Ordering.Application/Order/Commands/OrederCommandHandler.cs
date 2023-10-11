@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using IntegrationEventLogEF.Services;
+using MediatR;
 using Ordering.Application.Abstraction.Messaging;
 using Ordering.Domain.AggregatesModel.OrderAggregate;
 using Ordering.Domain.Prematives;
@@ -6,6 +7,7 @@ using Ordering.Domain.Repository;
 using Ordering.Domain.Sahred;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,7 +18,6 @@ namespace Ordering.Application.Order.Commands
     internal sealed class OrederCommandHandler : ICommandHandler<OrederCommand>
     {
         private readonly IOrderRepository _orderRepository;
-
         public OrederCommandHandler(IOrderRepository orderRepository)
         {
             _orderRepository = orderRepository;

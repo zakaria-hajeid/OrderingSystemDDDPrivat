@@ -7,8 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\Ordering.Application\Ordering.Application.csproj" />
-    <ProjectReference Include="..\Ordering.Persistence\Ordering.Persistence.csproj" />
+    <Folder Include="Abstraction\" />
   </ItemGroup>
 
 </Project>

@@ -23,6 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Core\Ordering.Application\Ordering.Application.csproj" />
     <ProjectReference Include="..\External\Ordering.Persistence\Ordering.Persistence.csproj" />
+    <ProjectReference Include="..\IntegrationEventLogEF\IntegrationEventLogEF.csproj" />
   </ItemGroup>
 
   <ItemGroup>

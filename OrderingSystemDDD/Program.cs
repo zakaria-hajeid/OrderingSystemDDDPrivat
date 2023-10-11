@@ -1,3 +1,4 @@
+using IntegrationEventLogEF.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Ordering.Persistence;
@@ -22,7 +23,8 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
   
     await context.Database.MigrateAsync();
-    
+    var integEventContext = scope.ServiceProvider.GetRequiredService<IntegrationEventLogContext>();
+    await integEventContext.Database.MigrateAsync();
 }
 
 // Configure the HTTP request pip  eline.
