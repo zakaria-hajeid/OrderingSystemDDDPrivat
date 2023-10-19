@@ -42,10 +42,10 @@ internal sealed class ValidateOrAddBuyerAggregateWhenOrderStartedDomainEventHand
                                         domainEvent.cardExpiration,
                                         domainEvent.order.Id);
 
-        var buyerUpdated = buyerExisted ?
+       /* var buyerUpdated = buyerExisted ?
             _buyerRepository.Update(buyer) :
             _buyerRepository.Add(buyer);
-
+       */
         await _buyerRepository.UnitOfWork
             .SaveEntitiesAsync(cancellationToken);
 

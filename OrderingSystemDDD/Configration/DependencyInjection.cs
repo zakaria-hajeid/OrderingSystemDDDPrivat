@@ -6,9 +6,10 @@ namespace OrderingSystemDDD.Configration
     {
         public static IServiceCollection InstallServices(this IServiceCollection service, IConfiguration configuration, params Assembly[] assemblies)
         {
-            IEnumerable<IServiceInstaller> serviceInstallers = assemblies.SelectMany(a => a.DefinedTypes).Where
+            IEnumerable<IServiceInstaller> serviceInstallers = assemblies.SelectMany(a => a.DefinedTypes).Distinct().Where
                                                                 (IsAssignableToType<IServiceInstaller>).Select(Activator.CreateInstance).
                                                                 Cast<IServiceInstaller>();
+
 
             foreach (IServiceInstaller serviceInstaller in serviceInstallers)
             {
