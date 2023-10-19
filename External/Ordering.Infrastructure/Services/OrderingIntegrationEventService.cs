@@ -1,4 +1,5 @@
-﻿using EventBus.Events;
+﻿using EventBus.Abstraction;
+using EventBus.Events;
 using IntegrationEventLogEF.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -11,22 +12,28 @@ namespace Ordering.Infrastructure.Services;
 public class OrderingIntegrationEventService : IOrderingIntegrationEventService
 {
     private readonly Func<DbConnection, IIntegrationEventLogService> _integrationEventLogServiceFactory;
-   // private readonly IEventBus _eventBus;
+    private readonly IEventBus _eventBus;
     private readonly ApplicationDbContext _orderingContext;
+    //<summary>
+    //هاي عبارة عن لايبراري بتعالج الاينتيجراشين  الايفنتس عشان الكل يستخدمها
+    //بستخدمعها مشان اتعامل مع الايفنت اللي عندي لانو الايفنت شيرنج
+    //بين كل المايكروسيرفس
+    //والها كونتيكست خاص فيها بقدر اعملو سكيما عنفس الداتا بيس الي انا فاتحه ا حسب المايكروسيرفس 
+    //</summary>
     private readonly IIntegrationEventLogService _eventLogService;
     private readonly ILogger<OrderingIntegrationEventService> _logger;
 
-    public OrderingIntegrationEventService(//IEventBus eventBus,
+    public OrderingIntegrationEventService(IEventBus eventBus,
         ApplicationDbContext orderingContext,
         IIntegrationEventLogService eventLogContext,
         Func<DbConnection, IIntegrationEventLogService> integrationEventLogServiceFactory,
         ILogger<OrderingIntegrationEventService> logger)
     {
-        _orderingContext = orderingContext ?? throw new ArgumentNullException(nameof(orderingContext));
-        _integrationEventLogServiceFactory = integrationEventLogServiceFactory ?? throw new ArgumentNullException(nameof(integrationEventLogServiceFactory));
-       // _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
+        _orderingContext = orderingContext;
+        _integrationEventLogServiceFactory = integrationEventLogServiceFactory;
+        _eventBus = eventBus;
         _eventLogService = _integrationEventLogServiceFactory(_orderingContext.Database.GetDbConnection());
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _logger = logger;
     }
 
     public async Task PublishEventsThroughEventBusAsync(Guid transactionId)
@@ -40,7 +47,7 @@ public class OrderingIntegrationEventService : IOrderingIntegrationEventService
             try
             {
                 await _eventLogService.MarkEventAsInProgressAsync(logEvt.EventId);
-               // _eventBus.Publish(logEvt.IntegrationEvent);
+                await _eventBus.Publish(logEvt.IntegrationEvent);
                 await _eventLogService.MarkEventAsPublishedAsync(logEvt.EventId);
             }
             catch (Exception ex)
