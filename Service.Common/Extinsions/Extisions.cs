@@ -1,4 +1,6 @@
-﻿using IntegrationEventLogEF.DbContexts;
+﻿using EventBus;
+using EventBus.Abstraction;
+using IntegrationEventLogEF.DbContexts;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -28,6 +30,8 @@ namespace Service.Common.Extinsions
             params Action<IBusRegistrationConfigurator>[] consumers)
 
         {
+            services.AddScoped<IEventBus, EventBusHandler>();
+
             if (withConsumer)
             {
                 AddEventBusWithConsumer(services, configuration, queeWithConsumer, consumers);

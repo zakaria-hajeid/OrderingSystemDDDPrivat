@@ -11,21 +11,22 @@ namespace Ordering.Infrastructure.Services;
 
 public class OrderingIntegrationEventService : IOrderingIntegrationEventService
 {
-    private readonly Func<DbConnection, IIntegrationEventLogService> _integrationEventLogServiceFactory;
-    private readonly IEventBus _eventBus;
-    private readonly ApplicationDbContext _orderingContext;
+
     //<summary>
     //هاي عبارة عن لايبراري بتعالج الاينتيجراشين  الايفنتس عشان الكل يستخدمها
     //بستخدمعها مشان اتعامل مع الايفنت اللي عندي لانو الايفنت شيرنج
     //بين كل المايكروسيرفس
     //والها كونتيكست خاص فيها بقدر اعملو سكيما عنفس الداتا بيس الي انا فاتحه ا حسب المايكروسيرفس 
     //</summary>
+
+    private readonly Func<DbConnection, IIntegrationEventLogService> _integrationEventLogServiceFactory;
+    private readonly IEventBus _eventBus;
+    private readonly ApplicationDbContext _orderingContext;
     private readonly IIntegrationEventLogService _eventLogService;
     private readonly ILogger<OrderingIntegrationEventService> _logger;
 
     public OrderingIntegrationEventService(IEventBus eventBus,
         ApplicationDbContext orderingContext,
-        IIntegrationEventLogService eventLogContext,
         Func<DbConnection, IIntegrationEventLogService> integrationEventLogServiceFactory,
         ILogger<OrderingIntegrationEventService> logger)
     {
@@ -47,7 +48,7 @@ public class OrderingIntegrationEventService : IOrderingIntegrationEventService
             try
             {
                 await _eventLogService.MarkEventAsInProgressAsync(logEvt.EventId);
-                await _eventBus.Publish(logEvt.IntegrationEvent);
+                 await _eventBus.Publish(logEvt.IntegrationEvent);
                 await _eventLogService.MarkEventAsPublishedAsync(logEvt.EventId);
             }
             catch (Exception ex)

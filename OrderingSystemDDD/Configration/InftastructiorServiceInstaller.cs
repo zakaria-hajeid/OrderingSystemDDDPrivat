@@ -9,6 +9,7 @@ using Ordering.Infrastructure.Services;
 using Ordering.Persistence;
 using Ordering.Persistence.Repository;
 using OrderingSystemDDD.Extinsions;
+using Service.Common.Extinsions;
 using System.Data.Common;
 
 namespace OrderingSystemDDD.Configration
@@ -17,17 +18,18 @@ namespace OrderingSystemDDD.Configration
     {
         public void Instal(IServiceCollection services, IConfiguration configuration)
         {
+
             services.AddDbContextsExtinstions(configuration);
             services.AddScoped<IUnitOfWork, ApplicationDbContext>();
             services.AddScoped<IUnitOfWork, ApplicationDbContext>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddTransient<IOrderingIntegrationEventService, OrderingIntegrationEventService>();
 
-            services.AddTransient<Func<DbConnection, IntegrationEventLogService>>(
+            services.AddTransient<Func<DbConnection, IIntegrationEventLogService>>(
                                 sp => (DbConnection c) => new IntegrationEventLogService(
                                                                () => new IIntegrationOutboxRepository(c)));
 
-            services.AddTransient<IOrderingIntegrationEventService, OrderingIntegrationEventService>();
 
         }
 
