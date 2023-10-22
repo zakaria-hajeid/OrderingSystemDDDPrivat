@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Ordering.Application.Order.IntegrationEvents;
 using Ordering.Application.Services;
+using Ordering.Domain.AggregatesModel.BuyerAggregate;
 using Ordering.Domain.Events;
 using Ordering.Domain.Repository;
 
@@ -11,7 +12,7 @@ internal sealed class ValidateOrAddBuyerAggregateWhenOrderStartedDomainEventHand
 {
     private readonly ILogger _logger;
     private readonly IBuyerRepository _buyerRepository;
-     private readonly IOrderingIntegrationEventService _orderingIntegrationEventService;
+    private readonly IOrderingIntegrationEventService _orderingIntegrationEventService;
 
     public ValidateOrAddBuyerAggregateWhenOrderStartedDomainEventHandler(
         ILogger<ValidateOrAddBuyerAggregateWhenOrderStartedDomainEventHandler> logger,
@@ -25,32 +26,16 @@ internal sealed class ValidateOrAddBuyerAggregateWhenOrderStartedDomainEventHand
 
     public async Task Handle(OrderStartedDomainEvent domainEvent, CancellationToken cancellationToken)
     {
-        var cardTypeId = domainEvent.cardTypeId != 0 ? domainEvent.cardTypeId : 1;
-        var buyer = await _buyerRepository.FindAsync(domainEvent.userId);
-        var buyerExisted = buyer is not null;
 
-        if (!buyerExisted)
+        var byerCreate = await Buyer.UpdateOrCreate(domainEvent, _buyerRepository);
+        if (byerCreate.IsFailuer)
         {
-            //  buyer = new Buyer(domainEvent.UserId, domainEvent.UserName);
+            throw new InvalidOperationException(byerCreate.Error.Message);
         }
+        await _buyerRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
 
-        buyer.VerifyOrAddPaymentMethod(cardTypeId,
-                                        $"Payment Method on {DateTime.UtcNow}",
-                                        domainEvent.cardNumber,
-                                        domainEvent.cardSecurityNumber,
-                                        domainEvent.cardHolderName,
-                                        domainEvent.cardExpiration,
-                                        domainEvent.order.Id);
-
-       /* var buyerUpdated = buyerExisted ?
-            _buyerRepository.Update(buyer) :
-            _buyerRepository.Add(buyer);
-       */
-        await _buyerRepository.UnitOfWork
-            .SaveEntitiesAsync(cancellationToken);
-
-        var integrationEvent = new OrderStatusChangedToSubmittedIntegrationEvent(domainEvent.order.Id, domainEvent.order.OrderStatus.Name, buyer.Name);
+        var integrationEvent = new OrderStatusChangedToSubmittedIntegrationEvent(domainEvent.order.Id, domainEvent.order.OrderStatus.Name, byerCreate.Value.Name);
         await _orderingIntegrationEventService.SaveEventAsync(integrationEvent);
-       // OrderingApiTrace.LogOrderBuyerAndPaymentValidatedOrUpdated(_logger, buyerUpdated.Id, domainEvent.Order.Id);
+        // OrderingApiTrace.LogOrderBuyerAndPaymentValidatedOrUpdated(_logger, buyerUpdated.Id, domainEvent.Order.Id);
     }
 }

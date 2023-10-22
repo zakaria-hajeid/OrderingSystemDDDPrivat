@@ -1,8 +1,10 @@
 ﻿using Ordering.Domain.Errors;
 using Ordering.Domain.Events;
 using Ordering.Domain.Prematives;
+using Ordering.Domain.Repository;
 using Ordering.Domain.Sahred;
 using System.Runtime.InteropServices;
+using System.Security.Principal;
 
 namespace Ordering.Domain.AggregatesModel.BuyerAggregate;
 
@@ -28,25 +30,27 @@ public class Buyer : AggregateRoot
         Name = name;
     }
 
-    public Result<PaymentMethod> VerifyOrAddPaymentMethod(
-        int cardTypeId, string alias, string cardNumber,
-        string securityNumber, string cardHolderName, DateTime expiration, int orderId)
+    /* int cardTypeId, string alias, string cardNumber,
+        string securityNumber, string cardHolderName, DateTime expiration, int orderId*/
+    private Result<PaymentMethod> VerifyOrAddPaymentMethod(OrderStartedDomainEvent @event)
     {
+        var cardTypeId = @event.cardTypeId != 0 ? @event.cardTypeId : 1;
+
         var existingPayment = _paymentMethods
-            .SingleOrDefault(p => p.IsEqualTo(cardTypeId, cardNumber, expiration));
+            .SingleOrDefault(p => p.IsEqualTo(cardTypeId, @event.cardNumber, @event.cardExpiration));
 
         if (existingPayment != null)
         {
-            AddDomainEvent(new BuyerAndPaymentMethodVerifiedDomainEvent(this, existingPayment, orderId));
+            AddDomainEvent(new BuyerAndPaymentMethodVerifiedDomainEvent(this, existingPayment, @event.order.Id));
 
             return existingPayment;
         }
 
-        var payment =  PaymentMethod.Create(cardTypeId, alias, cardNumber, securityNumber, cardHolderName, expiration);
+        var payment = PaymentMethod.Create(cardTypeId, $"Payment Method on {DateTime.UtcNow}", @event.cardNumber, @event.cardSecurityNumber, @event.cardHolderName, @event.cardExpiration);
         if (payment.IsSuccess)
         {
             _paymentMethods.Add(payment.Value);
-            AddDomainEvent(new BuyerAndPaymentMethodVerifiedDomainEvent(this, payment.Value, orderId));
+            AddDomainEvent(new BuyerAndPaymentMethodVerifiedDomainEvent(this, payment.Value, @event.order.Id));
             return payment;
 
         }
@@ -58,18 +62,38 @@ public class Buyer : AggregateRoot
 
     }
 
-    public static Result<Buyer> Create(string identity, string name)
+    public async static Task<Result<Buyer>> UpdateOrCreate(OrderStartedDomainEvent @event, IBuyerRepository buyerRepository)
     {
-        if (string.IsNullOrWhiteSpace(identity))
+        var buyer = await buyerRepository.FindAsync(@event.userId);
+        bool newbuyer=false;
+        if (buyer == null)
         {
-            return Result.Failure<Buyer>(DomainErrors.ErrorWithParameters(DomainErrors.NullArgumentsError, nameof(identity)));
+            if (string.IsNullOrWhiteSpace(@event.userId))
+            {
+                return Result.Failure<Buyer>(DomainErrors.ErrorWithParameters(DomainErrors.NullArgumentsError, nameof(@event.userId)));
+            }
+            if (string.IsNullOrWhiteSpace(@event.userName))
+            {
+                return Result.Failure<Buyer>(DomainErrors.ErrorWithParameters(DomainErrors.NullArgumentsError, nameof(@event.userName)));
+            }
+            buyer = new(@event.userId, @event.userName);
+            newbuyer = true;
         }
-        if (string.IsNullOrWhiteSpace(name))
+        //VerifyOrAddPaymentMethod
+        var tryVerify = buyer.VerifyOrAddPaymentMethod(@event);
+        if (tryVerify.IsFailuer)
         {
-            return Result.Failure<Buyer>(DomainErrors.ErrorWithParameters(DomainErrors.NullArgumentsError, nameof(name)));
+            return Result.Failure<Buyer>(tryVerify.Error);
         }
-        Buyer buyerbuyer = new(identity, name);
-        return buyerbuyer;
+        if (newbuyer)
+        {
+            await buyerRepository.Add(buyer);
+        }
+        else
+        {
+             buyerRepository.Update(buyer);
+        }
+        return buyer;
 
     }
 }
