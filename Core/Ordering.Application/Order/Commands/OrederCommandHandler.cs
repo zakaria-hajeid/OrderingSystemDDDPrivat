@@ -25,6 +25,7 @@ namespace Ordering.Application.Order.Commands
        // public bool isTransaction => true;//عشان اقرر من البايب لاين اني افتح ترانز اكشن او لا 
         public async Task<Result> Handle(OrederCommand request, CancellationToken cancellationToken)
         {
+
             //you should clean the basket event 
             var address = Address.CreateAddress(request.Street, request.City, request.State, request.Country, request.ZipCode);
             var order = OrderEntity.CreateOrder(address, request.UserId, request.UserName, request.CardTypeId, request.CardNumber, request.CardSecurityNumber, request.CardHolderName, request.CardExpiration);

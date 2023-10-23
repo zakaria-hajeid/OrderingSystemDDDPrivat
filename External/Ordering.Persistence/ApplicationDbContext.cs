@@ -40,11 +40,11 @@ namespace Ordering.Persistence
         public IDbContextTransaction GetCurrentTransaction() => _currentTransaction;
 
 
-        bool IUnitOfWork.HasActiveTransaction { get => _currentTransaction != null; set => throw new NotImplementedException(); }
+        bool IUnitOfWork.HasActiveTransaction { get => _currentTransaction != null; }
 
         public async Task<IDbContextTransaction> BeginTransactionAsync()
         {
-            if (_currentTransaction != null) return null;
+            if (_currentTransaction != null) return _currentTransaction;
 
             _currentTransaction = await Database.BeginTransactionAsync(IsolationLevel.ReadCommitted);
 
@@ -108,6 +108,11 @@ namespace Ordering.Persistence
 
             var result = await base.SaveChangesAsync(cancellationToken);
             return true;
+        }
+
+        public IExecutionStrategy CreateExecutionStrategy()
+        {
+            return Database.CreateExecutionStrategy();
         }
     }
 }

@@ -13,6 +13,7 @@ namespace Ordering.Application.Order.Commands
         int CardTypeId, IEnumerable<OrderItemDto> orderItemDtos) : ICommand
     {
         public bool isTransaction => true;
+       
     }
 
 }

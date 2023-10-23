@@ -1,12 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace IntegrationEventLogEF.Repository
+﻿namespace IntegrationEventLogEF.Repository
 {
     public sealed class IIntegrationOutboxRepository
     {

@@ -1,7 +1,9 @@
 ﻿using Mapster;
+using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Ordering.Application.Dtos.CreateOrderDtos;
 using Ordering.Application.Order.Commands;
 using Ordering.Domain.Sahred;
@@ -14,7 +16,10 @@ namespace OrderingSystemDDD.Prsentions
         {
             app.MapPost("/Order", async (ISender sender, CreateOrderDto createOrder) =>
             {
-                OrederCommand orederCommand = createOrder.Adapt<OrederCommand>();
+                var s = new Mapper();
+                s.Config.ForType<CreateOrderDto, OrederCommand>().MapToConstructor;
+                
+                OrederCommand orederCommand = s.Adapt<OrederCommand>();
                var result = await sender.Send(orederCommand);
                 if(result != null && result.IsSuccess) {
                     return Results.Ok();//or  TypedResults.Ok(payload)

@@ -20,7 +20,7 @@ namespace OrderingSystemDDD.Configration
         {
 
             services.AddDbContextsExtinstions(configuration);
-            services.AddScoped<IUnitOfWork, ApplicationDbContext>();
+           // services.AddScoped<IUnitOfWork, ApplicationDbContext>();
             services.AddScoped<IUnitOfWork, ApplicationDbContext>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IOrderRepository, OrderRepository>();
