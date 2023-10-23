@@ -65,7 +65,6 @@ public class Buyer : AggregateRoot
     public async static Task<Result<Buyer>> UpdateOrCreate(OrderStartedDomainEvent @event, IBuyerRepository buyerRepository)
     {
         var buyer = await buyerRepository.FindAsync(@event.userId);
-        bool newbuyer=false;
         if (buyer == null)
         {
             if (string.IsNullOrWhiteSpace(@event.userId))
@@ -77,7 +76,6 @@ public class Buyer : AggregateRoot
                 return Result.Failure<Buyer>(DomainErrors.ErrorWithParameters(DomainErrors.NullArgumentsError, nameof(@event.userName)));
             }
             buyer = new(@event.userId, @event.userName);
-            newbuyer = true;
         }
         //VerifyOrAddPaymentMethod
         var tryVerify = buyer.VerifyOrAddPaymentMethod(@event);
@@ -85,14 +83,7 @@ public class Buyer : AggregateRoot
         {
             return Result.Failure<Buyer>(tryVerify.Error);
         }
-        if (newbuyer)
-        {
-            await buyerRepository.Add(buyer);
-        }
-        else
-        {
-             buyerRepository.Update(buyer);
-        }
+        await buyerRepository.AddOrUpdate(buyer);
         return buyer;
 
     }

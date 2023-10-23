@@ -11,5 +11,7 @@ namespace Ordering.Domain.Repository
     public interface IOrderRepository : IRepository<Order>
     {
         public  IUnitOfWork UnitOfWork  { get; set; }
+        Task<Order> GetAsync(int orderId);
+
     }
 }

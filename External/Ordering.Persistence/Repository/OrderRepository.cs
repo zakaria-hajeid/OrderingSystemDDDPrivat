@@ -1,6 +1,8 @@
-﻿using Ordering.Domain.AggregatesModel.OrderAggregate;
+﻿using Microsoft.EntityFrameworkCore;
+using Ordering.Domain.AggregatesModel.OrderAggregate;
 using Ordering.Domain.Prematives;
 using Ordering.Domain.Repository;
+
 namespace Ordering.Persistence.Repository
 {
     /// <summary>
@@ -17,11 +19,34 @@ namespace Ordering.Persistence.Repository
 
         public IUnitOfWork UnitOfWork { get => _context; set => throw new NotImplementedException(); }
 
-        public OrderRepository(ApplicationDbContext context):base(context) 
+        public OrderRepository(ApplicationDbContext context) : base(context)
         {
-            _context= context;
+            _context = context;
         }
-        
 
+        public async Task<Order> GetAsync(int orderId)
+        {
+            var order = await _context.Orders
+                                        .Include(x => x.Address)
+                                        .FirstOrDefaultAsync(o => o.Id == orderId);
+            if (order == null)
+            {
+                // get from local if not yet saved in DB 
+                order = _context
+                            .Orders
+                            .Local
+                            .FirstOrDefault(o => o.Id == orderId);
+            }
+            if (order != null)
+            {
+                await _context.Entry(order)
+                    .Collection(i => i.OrderItems).LoadAsync();//exeplicit Loading entity
+                await _context.Entry(order)
+                    .Reference(i => i.OrderStatus).LoadAsync();
+            }
+
+            return order;
+        }
     }
 }
+

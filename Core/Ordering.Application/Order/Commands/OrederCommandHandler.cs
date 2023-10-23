@@ -22,6 +22,7 @@ namespace Ordering.Application.Order.Commands
         {
             _orderRepository = orderRepository;
         }
+       // public bool isTransaction => true;//عشان اقرر من البايب لاين اني افتح ترانز اكشن او لا 
         public async Task<Result> Handle(OrederCommand request, CancellationToken cancellationToken)
         {
             //you should clean the basket event 

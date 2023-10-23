@@ -11,5 +11,6 @@ public interface IRepository<T> where T : AggregateRoot
     void UpdateRange(IEnumerable<T> entities);
     void Delete(T entityToDelete);
     void Delete(object id);
+    ValueTask AddOrUpdate(T entity);
 
 }

@@ -49,6 +49,23 @@ namespace Ordering.Persistence
         {
             return await Dbset.FindAsync(id);
         }
+
+        public async ValueTask AddOrUpdate(T entity)
+        {
+            var entry = _context.Entry(entity);
+            switch (entry.State)
+            {
+                case EntityState.Detached:
+                case EntityState.Added:
+                    await Dbset.AddAsync(entity);
+                    break;
+                case EntityState.Modified:
+                    Dbset.Update(entity);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
     }
 
 }

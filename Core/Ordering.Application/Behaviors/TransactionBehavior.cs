@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Ordering.Application.Abstraction.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,11 +8,51 @@ using System.Threading.Tasks;
 
 namespace Ordering.Application.Behaviors
 {
-    public class TransactionBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
+    public class TransactionBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest :
+        IRequest<TResponse>
     {
-        public Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+        public TransactionBehavior()
         {
-            throw new NotImplementedException();
+        }
+        public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+        {
+            try
+            {
+               /* switch (request)
+                {
+                    case ICommand c:
+                      if(c.isTransaction)
+                        {
+                            //open 
+                        }
+
+                        break;
+                }*/
+
+                //or switch expression 
+
+
+                if (request is ICommand)
+                {
+                    ICommand requests = (ICommand)request;
+
+                    if (requests.isTransaction)
+                    {
+                        //Open Transaction Bhavior
+                    }
+                }
+                else
+                {
+                    await next();
+                }
+                throw new NotImplementedException();
+            }
+            catch (Exception ex)
+            {
+                throw new NotImplementedException();
+
+            }
+
         }
     }
 }

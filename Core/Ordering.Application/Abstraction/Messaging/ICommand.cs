@@ -10,8 +10,11 @@ namespace Ordering.Application.Abstraction.Messaging
 {
     public interface ICommand : IRequest<Result>
     {
+        public bool isTransaction { get;}
     }
     public interface ICommand<TResponse> : IRequest<Result<TResponse>>
     {
+        public bool isTransaction { get; }
+
     }
 }

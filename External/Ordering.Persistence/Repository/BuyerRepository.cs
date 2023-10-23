@@ -17,17 +17,24 @@ public class BuyerRepository
         _context = context;
     }
 
-    public async Task<Buyer> Add(Buyer buyer)
+    /*public async Task<Buyer> Add(Buyer buyer)
     {
+        var buyerToAdd = buyer;
         if (buyer.IsTransient())
         {
-            var buyerToAdd = await _context.Buyers
-                            .AddAsync(buyer);
+             buyerToAdd = await _context.Buyers
+                            .AddAsync(buyer).Result.;
             return buyerToAdd.Entity;
 
         }
+        else
+        {
+
+            var buyerToAdd =_context.Buyers
+                            .Update(buyer);
+        }
         return buyer;
-    }
+    }*/
     //Todo specification pattern 
     public async Task<Buyer> FindAsync(string identity)
     {

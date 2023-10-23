@@ -8,7 +8,7 @@ public interface IBuyerRepository : IRepository<Buyer>
 {
     public IUnitOfWork UnitOfWork { get; set; }
 
-    Task<Buyer> Add(Buyer buyer);
+   // Task<Buyer> Add(Buyer buyer);
     Task<Buyer> FindAsync(string BuyerIdentityGuid);
     Task<Buyer> FindByIdAsync(string id);
 

@@ -32,6 +32,7 @@ internal sealed class ValidateOrAddBuyerAggregateWhenOrderStartedDomainEventHand
         {
             throw new InvalidOperationException(byerCreate.Error.Message);
         }
+        //publish domain event and save changes
         await _buyerRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
 
         var integrationEvent = new OrderStatusChangedToSubmittedIntegrationEvent(domainEvent.order.Id, domainEvent.order.OrderStatus.Name, byerCreate.Value.Name);
