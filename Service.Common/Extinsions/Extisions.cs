@@ -5,7 +5,6 @@ using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using static MassTransit.Logging.OperationName;
 
 namespace Service.Common.Extinsions
 {
@@ -27,15 +26,14 @@ namespace Service.Common.Extinsions
             return services;
         }
         public static IServiceCollection AddSharedServices(this IServiceCollection services, IConfiguration configuration, bool withConsumer = false,
-            Dictionary<string, List<Action<IRabbitMqReceiveEndpointConfigurator, IBusRegistrationContext>>> queeWithConsumer = null,
-            params Action<IBusRegistrationConfigurator>[] consumers)
+            Dictionary<string, List<Action<IRabbitMqReceiveEndpointConfigurator, IBusRegistrationContext>>> queeWithConsumer = null)
 
         {
             services.AddScoped<IEventBus, EventBusHandler>();
             
             if (withConsumer)
             {
-                AddEventBusWithConsumer(services, configuration, queeWithConsumer, consumers);
+                AddEventBusWithConsumer(services, configuration, queeWithConsumer);
 
             }
             else
@@ -67,16 +65,12 @@ namespace Service.Common.Extinsions
         }
 
         private static void AddEventBusWithConsumer(IServiceCollection services, IConfiguration configuration,
-                   Dictionary<string, List<Action<IRabbitMqReceiveEndpointConfigurator, IBusRegistrationContext>>> queeWithConsumer = null, params Action<IBusRegistrationConfigurator>[] consumers)
+                   Dictionary<string, List<Action<IRabbitMqReceiveEndpointConfigurator, IBusRegistrationContext>>> queeWithConsumer = null)
 
         {
 
             services.AddMassTransit(bus =>
                         {
-                            foreach (var consumer in consumers)
-                            {
-                                consumer.Invoke(bus);
-                            }
 
                             bus.UsingRabbitMq((context, cfg) =>
                             {
@@ -96,35 +90,6 @@ namespace Service.Common.Extinsions
                                         consumer.Value.ForEach(s => s.Invoke(e, context));
                                     });
                                 }
-
-
-                                //cfg.ReceiveEndpoint("IntegrationEventQueue", e => //QueueDeclareOk queue with consumer and bind into defaul or specific exchang type 
-                                //{
-                                //    e.ConfigureConsumer<consume>(context);
-                                //    e.ConfigureConsumer<consume>(context);
-
-
-                                //});
-                                /*cfg.Publish<EVENT>(x =>
-                                {
-                                    x.ExchangeType = "topic"; // default, allows any valid exchange type
-                                });*/
-
-                                /*
-                                 *
-                                //cfg.ReceiveEndpoint("Testque1", e => //QueueDeclareOk queue with consumer and bind into defaul or specific exchang type 
-                                //{
-                                //    e.ConfigureConsumer<consume>(context);
-                                //    ///*e.Bind("TestqueExchange", x =>/*specific exchang*/
-                                //    //{
-                                //    //    x.Durable = false;
-                                //    //    x.AutoDelete = true;
-                                //    //    x.ExchangeType = "topic";
-                                //    //    x.RoutingKey = "8675309.*";
-                                //    //}); 
-                                //    // e.Bind<EVENT>();//defaul
-                                //});
-
 
                             });
 

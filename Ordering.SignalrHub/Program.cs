@@ -13,23 +13,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
-//Refactor to use method to prepare this just call  AddSharedServices in common service libraray 
 Dictionary<string, List<Action<IRabbitMqReceiveEndpointConfigurator, IBusRegistrationContext>>> queueNameWithConsumers = new Dictionary<string, List<Action<IRabbitMqReceiveEndpointConfigurator, IBusRegistrationContext>>>();
 queueNameWithConsumers.Add("IntegrationEvent", new List<Action<IRabbitMqReceiveEndpointConfigurator, IBusRegistrationContext>>()
 {
     (endpoint,context) =>
-    endpoint.ConfigureConsumer<OrderStatusChangedToSubmittedIntegrationEventHandler>(context)
+    {
+        endpoint.Consumer<OrderStatusChangedToSubmittedIntegrationEventHandler>();
+        endpoint.UseMessageRetry(x=>x.Interval(int.Parse(builder.Configuration["EventBusMessageBroker:RetryCount"]),int.Parse(builder.Configuration["EventBusMessageBroker:Interval"])));
+    }
 });
-
-List<Action<IBusRegistrationConfigurator>> Consumers = new List<Action<IBusRegistrationConfigurator>>()
-{
-    (bus)=>bus.AddConsumer<OrderStatusChangedToSubmittedIntegrationEventHandler>()
-};
-
-
-builder.Services.AddSharedServices(builder.Configuration,true,queueNameWithConsumers, Consumers.ToArray()) ;
-
+builder.Services.AddSharedServices(builder.Configuration,true,queueNameWithConsumers) ;
 
 var app = builder.Build();
 

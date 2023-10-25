@@ -21,11 +21,6 @@
                                .Where(e => e.TransactionId == tid && e.State == EventStateEnum.NotPublished)
                                .ToListAsync();
 
-            //return the ALL DOMAIN EVENT 
-
-            /*Assembly.Load(Assembly.GetEntryAssembly().GetReferencedAssemblies()[9]).GetTypes().Where(t => typeof(IntegrationEvent).IsAssignableFrom(t)
-                                                         && !t.IsInterface && !t.IsAbstract)
-                                             .ToList();*/
           
             List<Type> _eventTypes = Assembly.Load(result.Select(X=>X.eventAssymblyName).FirstOrDefault()!) //call the application service 
                                              .GetTypes()
