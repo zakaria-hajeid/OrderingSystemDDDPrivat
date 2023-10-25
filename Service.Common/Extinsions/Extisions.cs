@@ -5,6 +5,7 @@ using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using static MassTransit.Logging.OperationName;
 
 namespace Service.Common.Extinsions
 {
@@ -31,7 +32,7 @@ namespace Service.Common.Extinsions
 
         {
             services.AddScoped<IEventBus, EventBusHandler>();
-
+            
             if (withConsumer)
             {
                 AddEventBusWithConsumer(services, configuration, queeWithConsumer, consumers);
@@ -41,6 +42,7 @@ namespace Service.Common.Extinsions
             {
                 AddEventBus(services, configuration);
             }
+            services.AddMassTransitHostedService();
             return services;
         }
         private static void AddEventBus(IServiceCollection services, IConfiguration configuration)
@@ -58,8 +60,7 @@ namespace Service.Common.Extinsions
                                             h.Password(configuration["EventBusMessageBroker:Password"]);
                                         });
                     cfg.ConfigureEndpoints(context);
-
-
+                
                 });
             });
 

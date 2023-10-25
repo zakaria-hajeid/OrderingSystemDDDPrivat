@@ -1,6 +1,7 @@
 ﻿using EventBus.Abstraction;
 using EventBus.Events;
 using MassTransit;
+using Newtonsoft.Json;
 
 namespace EventBus
 {
@@ -14,8 +15,10 @@ namespace EventBus
             _publishEndpoint = publishEndpoint;
         }
 
-        public async Task Publish(IntegrationEvent @event)
+        public async Task Publish(IntegrationEvent @event )
         {
+            @event.eventContent = JsonConvert.SerializeObject(@event);
+
             await _publishEndpoint.Publish(@event);
 
 

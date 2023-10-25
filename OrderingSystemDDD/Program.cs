@@ -1,7 +1,10 @@
+using EventBus.Abstraction;
+using EventBus.Events;
 using IntegrationEventLogEF.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Ordering.Persistence;
+using Ordering.Persistence.SeedWorks;
 using OrderingSystemDDD.Configration;
 using OrderingSystemDDD.Prsentions;
 
@@ -18,11 +21,17 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 app.AddOrderEndPoints();
+
 using (var scope = app.Services.CreateScope())
 {
+   /* var bus = scope.ServiceProvider.GetRequiredService<IEventBus>();
+    await bus.Publish(new IntegrationEvent() { assymblyName="za"});
+   */
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-  
+    var logger = app.Services.GetService<ILogger<OrderingContextSeed>>();
+
     await context.Database.MigrateAsync();
+    await new OrderingContextSeed().SeedAsync(context, logger);
     var integEventContext = scope.ServiceProvider.GetRequiredService<IntegrationEventLogContext>();
     await integEventContext.Database.MigrateAsync();
 }

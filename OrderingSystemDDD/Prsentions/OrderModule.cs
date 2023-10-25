@@ -14,13 +14,11 @@ namespace OrderingSystemDDD.Prsentions
     {
         public static void AddOrderEndPoints(this IEndpointRouteBuilder app)
         {
-            app.MapPost("/Order", async (ISender sender, CreateOrderDto createOrder) =>
+            app.MapPost("/Order", async (ISender sender, OrederCommand createOrder) =>
             {
-                var s = new Mapper();
-                s.Config.ForType<CreateOrderDto, OrederCommand>().MapToConstructor;
-                
-                OrederCommand orederCommand = s.Adapt<OrederCommand>();
-               var result = await sender.Send(orederCommand);
+
+              // OrederCommand orederCommand = createOrder.Adapt<OrederCommand>();
+               var result = await sender.Send(createOrder);
                 if(result != null && result.IsSuccess) {
                     return Results.Ok();//or  TypedResults.Ok(payload)
 
@@ -30,7 +28,8 @@ namespace OrderingSystemDDD.Prsentions
                     return Results.BadRequest();
                 }
                 //return Handle(result);
-            }).Produces(StatusCodes.Status400BadRequest)
+            })
+                .Produces(StatusCodes.Status400BadRequest)
               .Produces(StatusCodes.Status200OK)
                // .AddEndpointFilter<"s"> speacfic filter 
               //.RequireAuthorization()

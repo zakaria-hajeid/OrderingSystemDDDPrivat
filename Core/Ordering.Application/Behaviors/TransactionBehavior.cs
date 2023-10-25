@@ -4,6 +4,8 @@ using Microsoft.Extensions.Logging;
 using Ordering.Application.Abstraction.Messaging;
 using Ordering.Application.Services;
 using Ordering.Domain.Prematives;
+using Ordering.Domain.Repository;
+using Ordering.Persistence;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,13 +20,16 @@ namespace Ordering.Application.Behaviors
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<TransactionBehavior<TRequest, TResponse>> _logger;
         private readonly IOrderingIntegrationEventService _orderingIntegrationEventService;
+        private readonly ApplicationDbContext _applicationDbContext;
 
 
-        public TransactionBehavior(IUnitOfWork unitOfWork, ILogger<TransactionBehavior<TRequest, TResponse>> logger, IOrderingIntegrationEventService orderingIntegrationEventService)
+
+        public TransactionBehavior(IUnitOfWork unitOfWork, ILogger<TransactionBehavior<TRequest, TResponse>> logger, IOrderingIntegrationEventService orderingIntegrationEventService, ApplicationDbContext applicationDbContext)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _orderingIntegrationEventService = orderingIntegrationEventService;
+            _applicationDbContext = applicationDbContext;
         }
         public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
@@ -50,7 +55,7 @@ namespace Ordering.Application.Behaviors
                                 {
                                     Guid transactionId;
 
-                                    await using var transaction = await _unitOfWork.BeginTransactionAsync();
+                                    await using var transaction = await _applicationDbContext.BeginTransactionAsync();
                                     using (_logger.BeginScope(new List<KeyValuePair<string, object>> { new("TransactionContext", transaction.TransactionId) }))
                                     {
                                         _logger.LogInformation("Begin transaction {TransactionId} for {CommandName} ({@Command})", transaction.TransactionId, typeName, request);
@@ -58,9 +63,7 @@ namespace Ordering.Application.Behaviors
                                         response = await next();
 
                                         _logger.LogInformation("Commit transaction {TransactionId} for {CommandName}", transaction.TransactionId, typeName);
-
-                                        await _unitOfWork.CommitTransactionAsync(transaction);
-
+                                        await _applicationDbContext.CommitTransactionAsync(transaction);
                                         transactionId = transaction.TransactionId;
                                     }
 
@@ -72,8 +75,7 @@ namespace Ordering.Application.Behaviors
                             catch (Exception ex)
                             {
                                 _logger.LogError(ex, "Error Handling transaction for {CommandName} ({@Command})", typeName, request);
-
-                                throw;
+                                throw ex;
                             }
                         }
                         else

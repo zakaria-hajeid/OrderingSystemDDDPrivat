@@ -1,18 +1,21 @@
 ﻿using EventBus.Abstraction;
 using EventBus.Events;
 using MassTransit;
-using Ordering.SignalrHub.IntegrationEventHandling.Event;
+using Newtonsoft.Json;
+using Ordering.SignalrHub.IntegrationEventHandling.IntegrationEvents;
 
 namespace Ordering.SignalrHub.IntegrationEventHandling.EventHandling
 {
-    public  class OrderStatusChangedToSubmittedIntegrationEventHandler : 
-        IIntegrationEventHandler<OrderStatusChangedToSubmittedIntegrationEvent>
+    public  class OrderStatusChangedToSubmittedIntegrationEventHandler :
+        IIntegrationEventHandler<IntegrationEvent>
     {
         
-        public async Task Consume(ConsumeContext<OrderStatusChangedToSubmittedIntegrationEvent> context)
+        public async Task Consume(ConsumeContext<IntegrationEvent> context)
         {
-            throw new NotImplementedException();
-        }
+            OrderStatusChangedToSubmittedIntegrationEvent c = JsonConvert.DeserializeObject<OrderStatusChangedToSubmittedIntegrationEvent>(context.Message.eventContent);
+
+            throw new Exception(context.Message.assymblyName);
+         }
 
         
     }

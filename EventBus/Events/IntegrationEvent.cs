@@ -1,4 +1,6 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Reflection;
+using System.Reflection.Metadata.Ecma335;
+using System.Text.Json.Serialization;
 
 namespace EventBus.Events;
 
@@ -9,17 +11,20 @@ public record IntegrationEvent
         Id = Guid.NewGuid();
         CreationDate = DateTime.UtcNow;
     }
-
-    [JsonConstructor]
     public IntegrationEvent(Guid id, DateTime createDate)
     {
         Id = id;
         CreationDate = createDate;
     }
-
-    [JsonInclude]
+    public string  eventContent { get; set; }
     public Guid Id { get; private init; }
 
-    [JsonInclude]
     public DateTime CreationDate { get; private init; }
+
+    private string _assymblyName;
+
+    public string assymblyName { get => _assymblyName; set => _assymblyName = value; }
+    
 }
+
+

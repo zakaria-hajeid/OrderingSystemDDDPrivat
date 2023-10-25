@@ -5,6 +5,7 @@ using Ordering.Application.Services;
 using Ordering.Domain.AggregatesModel.BuyerAggregate;
 using Ordering.Domain.Events;
 using Ordering.Domain.Repository;
+using System.Reflection;
 
 namespace Ordering.Application.Order.DomainEventHandler;
 internal sealed class ValidateOrAddBuyerAggregateWhenOrderStartedDomainEventHandler
@@ -33,9 +34,9 @@ internal sealed class ValidateOrAddBuyerAggregateWhenOrderStartedDomainEventHand
             throw new InvalidOperationException(byerCreate.Error.Message);
         }
         //publish domain event and save changes
-        await _buyerRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
-
+        await _buyerRepository.UnitOfWork.PublishEventAsyncAsync(cancellationToken);
         var integrationEvent = new OrderStatusChangedToSubmittedIntegrationEvent(domainEvent.order.Id, domainEvent.order.OrderStatus.Name, byerCreate.Value.Name);
+        integrationEvent.assymblyName= Assembly.GetExecutingAssembly().FullName!;
         await _orderingIntegrationEventService.SaveEventAsync(integrationEvent);
         // OrderingApiTrace.LogOrderBuyerAndPaymentValidatedOrUpdated(_logger, buyerUpdated.Id, domainEvent.Order.Id);
     }

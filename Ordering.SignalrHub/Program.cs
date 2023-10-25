@@ -1,7 +1,6 @@
 using EventBus.Abstraction;
 using EventBus.Events;
 using MassTransit;
-using Ordering.SignalrHub.IntegrationEventHandling.Event;
 using Ordering.SignalrHub.IntegrationEventHandling.EventHandling;
 using Service.Common.Extinsions;
 

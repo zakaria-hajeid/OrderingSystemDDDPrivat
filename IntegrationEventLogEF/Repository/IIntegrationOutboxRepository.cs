@@ -22,7 +22,12 @@
                                .ToListAsync();
 
             //return the ALL DOMAIN EVENT 
-            List<Type> _eventTypes = Assembly.Load(Assembly.GetEntryAssembly().FullName)
+
+            /*Assembly.Load(Assembly.GetEntryAssembly().GetReferencedAssemblies()[9]).GetTypes().Where(t => typeof(IntegrationEvent).IsAssignableFrom(t)
+                                                         && !t.IsInterface && !t.IsAbstract)
+                                             .ToList();*/
+          
+            List<Type> _eventTypes = Assembly.Load(result.Select(X=>X.eventAssymblyName).FirstOrDefault()!) //call the application service 
                                              .GetTypes()
                                              .Where(t => typeof(IntegrationEvent).IsAssignableFrom(t)
                                                          && !t.IsInterface && !t.IsAbstract)

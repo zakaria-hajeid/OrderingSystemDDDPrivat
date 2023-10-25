@@ -24,6 +24,7 @@ namespace OrderingSystemDDD.Configration
             services.AddScoped<IUnitOfWork, ApplicationDbContext>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IBuyerRepository, BuyerRepository>();
             services.AddTransient<IOrderingIntegrationEventService, OrderingIntegrationEventService>();
 
             services.AddTransient<Func<DbConnection, IIntegrationEventLogService>>(

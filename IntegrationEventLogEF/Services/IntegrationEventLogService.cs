@@ -17,6 +17,7 @@ public class IntegrationEventLogService : IIntegrationEventLogService, IDisposab
         if (transaction == null) throw new ArgumentNullException(nameof(transaction));
 
         var eventLogEntry = IntegrationEventOutbox.AddingNewEvent(@event, transaction.TransactionId);
+        await _integrationOutboxRepository.ADDIntegrationEvent(eventLogEntry);
         await _integrationOutboxRepository.SaveChangesAsync(transaction);
     }
 

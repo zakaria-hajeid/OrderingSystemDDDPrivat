@@ -4,6 +4,7 @@ using IntegrationEventLogEF.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Ordering.Application.Services;
+using Ordering.Domain.Prematives;
 using Ordering.Persistence;
 using System.Data.Common;
 
@@ -22,18 +23,20 @@ public class OrderingIntegrationEventService : IOrderingIntegrationEventService
     private readonly Func<DbConnection, IIntegrationEventLogService> _integrationEventLogServiceFactory;
     private readonly IEventBus _eventBus;
     private readonly ApplicationDbContext _orderingContext;
+
     private readonly IIntegrationEventLogService _eventLogService;
     private readonly ILogger<OrderingIntegrationEventService> _logger;
 
     public OrderingIntegrationEventService(IEventBus eventBus,
         ApplicationDbContext orderingContext,
         Func<DbConnection, IIntegrationEventLogService> integrationEventLogServiceFactory,
-        ILogger<OrderingIntegrationEventService> logger)
+        ILogger<OrderingIntegrationEventService> logger,
+        IUnitOfWork unitOfWork)
     {
         _orderingContext = orderingContext;
         _integrationEventLogServiceFactory = integrationEventLogServiceFactory;
         _eventBus = eventBus;
-        _eventLogService = _integrationEventLogServiceFactory(_orderingContext.Database.GetDbConnection());
+        _eventLogService = _integrationEventLogServiceFactory(_orderingContext.DbConnection()!);
         _logger = logger;
     }
 
@@ -48,7 +51,7 @@ public class OrderingIntegrationEventService : IOrderingIntegrationEventService
             try
             {
                 await _eventLogService.MarkEventAsInProgressAsync(logEvt.EventId);
-                 await _eventBus.Publish(logEvt.IntegrationEvent);
+                await _eventBus.Publish(logEvt.IntegrationEvent);
                 await _eventLogService.MarkEventAsPublishedAsync(logEvt.EventId);
             }
             catch (Exception ex)

@@ -39,5 +39,8 @@ public class IntegrationEventLogContext : DbContext
         builder.Property(e => e.EventTypeName)
             .IsRequired();
 
+        builder.Property(e => e.eventAssymblyName)
+            .IsRequired();
+
     }
 }

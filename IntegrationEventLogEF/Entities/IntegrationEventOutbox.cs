@@ -20,6 +20,7 @@ public class IntegrationEventOutbox
         State = EventStateEnum.NotPublished;
         TimesSent = 0;
         TransactionId = transactionId.ToString();
+        eventAssymblyName = @event.assymblyName;
     }
     public Guid EventId { get; private set; }
     public string EventTypeName { get; private set; }
@@ -32,6 +33,7 @@ public class IntegrationEventOutbox
     public DateTime CreationTime { get; private set; }
     public string Content { get; private set; }
     public string TransactionId { get; private set; }
+    public string eventAssymblyName { get; private set; }
 
     public IntegrationEventOutbox DeserializeJsonContent(Type type)
     {

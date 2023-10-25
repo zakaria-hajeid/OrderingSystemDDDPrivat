@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Identity.Client;
 using Ordering.Domain.AggregatesModel.BuyerAggregate;
 using Ordering.Domain.AggregatesModel.OrderAggregate;
 using Ordering.Domain.Prematives;
@@ -9,6 +10,7 @@ using Ordering.Persistence.Extinsions;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,9 +25,8 @@ namespace Ordering.Persistence
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IMediator mediator) : base(options)
         {
-            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+            _mediator = mediator;
 
-            System.Diagnostics.Debug.WriteLine("OrderingContext::ctor ->" + this.GetHashCode());
         }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
@@ -58,10 +59,11 @@ namespace Ordering.Persistence
 
             try
             {
+
                 await SaveChangesAsync();
                 await transaction.CommitAsync();
             }
-            catch
+            catch 
             {
                 RollbackTransaction();
                 throw;
@@ -102,17 +104,22 @@ namespace Ordering.Persistence
             modelBuilder.ApplyConfiguration(new BuyerEntityTypeConfiguration());
 
         }
-        public async Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default)
+        public async Task PublishEventAsyncAsync(CancellationToken cancellationToken = default)
         {
             await _mediator.DispatchDomainEventsAsync(this);
-
-            var result = await base.SaveChangesAsync(cancellationToken);
-            return true;
+            /*int c = await base.SaveChangesAsync(cancellationToken);
+            return c;*/
         }
 
         public IExecutionStrategy CreateExecutionStrategy()
         {
             return Database.CreateExecutionStrategy();
+        }
+
+        public DbConnection DbConnection()
+        {
+            return Database.GetDbConnection();
+
         }
     }
 }
