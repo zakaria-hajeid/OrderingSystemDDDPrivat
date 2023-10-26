@@ -12,13 +12,14 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<OrderStatusChangedToSubmittedIntegrationEventHandler>();
 
 Dictionary<string, List<Action<IRabbitMqReceiveEndpointConfigurator, IBusRegistrationContext>>> queueNameWithConsumers = new Dictionary<string, List<Action<IRabbitMqReceiveEndpointConfigurator, IBusRegistrationContext>>>();
 queueNameWithConsumers.Add("IntegrationEvent", new List<Action<IRabbitMqReceiveEndpointConfigurator, IBusRegistrationContext>>()
 {
     (endpoint,context) =>
     {
-        endpoint.Consumer<OrderStatusChangedToSubmittedIntegrationEventHandler>();
+        endpoint.Consumer<OrderStatusChangedToSubmittedIntegrationEventHandler>(context);
         endpoint.UseMessageRetry(x=>x.Interval(int.Parse(builder.Configuration["EventBusMessageBroker:RetryCount"]),int.Parse(builder.Configuration["EventBusMessageBroker:Interval"])));
     }
 });

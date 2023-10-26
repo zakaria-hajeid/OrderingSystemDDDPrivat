@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace OrderingSystemDDD.Controllers
+namespace Webhooks.api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
