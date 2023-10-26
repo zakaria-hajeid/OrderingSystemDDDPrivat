@@ -41,7 +41,7 @@ namespace OrderingSystemDDD.Controllers
 
         public async Task<IActionResult> SetStockItem([FromBody]WebhookData input)
         {
-            SetOrderStockInput payload = JsonSerializer.Deserialize<SetOrderStockInput>(input.Payload)!;
+            SetOrderStockInput payload = JsonSerializer.Deserialize<SetOrderStockInput>(input.Payload)!;//solve
             return Ok();
         }
         [HttpPost("MockOrderPaidIntegrationEvent")]
@@ -66,14 +66,19 @@ namespace OrderingSystemDDD.Controllers
 }
 public class WebhookData
     {
-        public string When { get; set; }
+        public DateTime When { get; set; }
 
         public string Payload { get; set; }
 
         public string Type { get; set; }
     }
 
-    public record SetOrderStockInput(int orderId, List<OrderStockItem> stockItems);
+    public record SetOrderStockInput
+{
+    public int orderId { get; set; }
+    public List<OrderStockItem> stockItems { get; set; }
+
+}
    
     public record OrderStockItem
     {

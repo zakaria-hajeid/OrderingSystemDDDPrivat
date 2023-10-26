@@ -11,9 +11,9 @@ public class WebhooksRetriever : IWebhooksRetriever
     {
         _db = db;
     }
-    public async Task<IEnumerable<WebhookSubscription>> GetSubscriptionsOfType(WebhookType type,int buyerId)
+    public async Task<IEnumerable<WebhookSubscription>> GetSubscriptionsOfType(WebhookType type)
     {
-        var data = await _db.Subscriptions.Where(s => s.Type == type && s.UserId == buyerId.ToString()).ToListAsync();
+        var data = await _db.Subscriptions.Where(s => s.Type == type).ToListAsync();
         return data;
     }
 }

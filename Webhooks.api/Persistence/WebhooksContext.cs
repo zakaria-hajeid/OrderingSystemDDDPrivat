@@ -33,7 +33,7 @@ public class WebhooksContextSeedData
 
                 };
                 bool anySub = await webhooksContext.Subscriptions.Where(x => x.DestUrl == webhookSubscription.DestUrl
-                 && x.Type == webhookSubscription.Type && x.UserId == webhookSubscription.UserId).AnyAsync();
+                 && x.Type == webhookSubscription.Type ).AnyAsync();
 
                 if (!anySub)
                 {

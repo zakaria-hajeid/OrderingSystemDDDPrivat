@@ -24,7 +24,7 @@ public class OrderStatusChangedToPaidIntegrationEventHandler : IIntegrationEvent
     public async Task Consume(ConsumeContext<IntegrationEvent> context)
     {
         OrderStatusChangedToPaidIntegrationEvent @event = JsonConvert.DeserializeObject<OrderStatusChangedToPaidIntegrationEvent>(context.Message.eventContent);
-        var subscriptions = await _retriever.GetSubscriptionsOfType(WebhookType.OrderPaid, @event.BuyerId);
+        var subscriptions = await _retriever.GetSubscriptionsOfType(WebhookType.OrderPaid);
         _logger.LogInformation("Received OrderStatusChangedToShippedIntegrationEvent and got {SubscriptionsCount} subscriptions to process", subscriptions.Count());
         var whook = new WebhookData(WebhookType.OrderPaid, @event);
         await _sender.SendAll(subscriptions, whook);

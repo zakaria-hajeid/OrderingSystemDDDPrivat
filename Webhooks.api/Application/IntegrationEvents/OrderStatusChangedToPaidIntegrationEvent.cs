@@ -1,6 +1,6 @@
 ﻿using EventBus.Events;
 namespace Webhooks.api.Application.IntegrationEvents;
-public sealed record OrderStatusChangedToPaidIntegrationEvent(int OrderId,int BuyerId, IEnumerable<OrderStockItem> orderStockItems) :
+public sealed record OrderStatusChangedToPaidIntegrationEvent(int OrderId, List<OrderStockItem> orderStockItems) :
     IntegrationEvent;
 public record OrderStockItem
 {
