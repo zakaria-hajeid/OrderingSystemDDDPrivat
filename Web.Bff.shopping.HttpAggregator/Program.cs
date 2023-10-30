@@ -14,12 +14,12 @@ builder.Services.AddSwaggerGen();
 builder.AddServiceDefaults();
 //Helth check for urls 
 
-builder.Services.AddHealthChecks()
-.AddUrlGroup(_ => new Uri(builder.Configuration.GetRequiredValue("OrderingUrlHC")), name: "Ordering-check", tags: new string[] { "catalogapi" })
-   .AddUrlGroup(_ => new Uri(builder.Configuration.GetRequiredValue("SignalRUrlHC")), name: "SignalR-check", tags: new string[] { "orderingapi" })
-   .AddUrlGroup(_ => new Uri(builder.Configuration.GetRequiredValue("WebSocketUrlHC")), name: "WebSocket-check", tags: new string[] { "basketapi" })
-   .AddUrlGroup(_ => new Uri(builder.Configuration.GetRequiredValue("IdentityUrlHC")), name: "Identity-check", tags: new string[] { "identityapi" });
+builder.Services.AddUrlGroupHealthChecks(builder.Configuration);
 
+builder.Services.AddRateLinitingIpAddress();
+
+
+//
 
 builder.Services.AddReverseProxy(builder.Configuration);
 builder.Services.AddCors(options =>
@@ -57,4 +57,5 @@ app.UseServiceDefaults();
 
 app.MapControllers();
 app.MapReverseProxy();
+app.UseRateLimiter();
 app.Run();
