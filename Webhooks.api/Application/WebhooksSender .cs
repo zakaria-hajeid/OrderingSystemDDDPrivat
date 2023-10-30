@@ -14,7 +14,7 @@ public class WebhooksSender : IWebhooksSender
     }
     public async Task SendAll(IEnumerable<WebhookSubscription> receivers, WebhookData data)
     {
-        var client = _httpClientFactory.CreateClient();
+        var client = _httpClientFactory.CreateClient("GrantClient");
         var jsonRequest = JsonSerializer.Serialize(data);
         var tasks = receivers.Select(r => OnSendData(r, jsonRequest, client));
         await Task.WhenAll(tasks.ToArray());

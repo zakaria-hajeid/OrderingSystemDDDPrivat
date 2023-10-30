@@ -24,7 +24,7 @@ namespace OrderingSystemDDD.Controllers
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
-        public IEnumerable<WeatherForecast> Get()
+        public IEnumerable<WeatherForecast> Get(string qquery)
         {
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {

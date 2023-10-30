@@ -1,13 +1,9 @@
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using RabbitMQ.Client;
 using Service.Common.Extinsions;
 using Webhooks.api.Application;
-using Webhooks.api.Persistence;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using MassTransit;
 using Webhooks.api.Application.IntegrationEvents;
+using Webhooks.api.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +13,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.AddServiceDefaults();
 builder.Services.AddDbContext<WebhooksContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetRequiredConnectionString("WebHooksDB"),
@@ -30,10 +26,9 @@ builder.Services.AddDbContext<WebhooksContext>(options =>
 });
 
 
-//helth check 
-var hcBuilder = builder.Services.AddHealthChecks();
-hcBuilder
-.AddSqlServer(_ =>
+//sql-helth check 
+ builder.Services.AddHealthChecks().
+AddSqlServer(_ =>
               builder.Configuration.GetRequiredConnectionString("WebHooksDB"),
               name: "WebhooksApiDb-check",
               tags: new string[] { "ready" });
@@ -62,9 +57,17 @@ builder.Services.AddSharedServices(builder.Configuration, true, queueNameWithCon
 
 var app = builder.Build();
 
-app.MapHealthChecks("/health"); 
+
+List<KeyValuePair<string, string>> hcRout = new List<KeyValuePair<string, string>>()
+{
+    new KeyValuePair<string, string>("SqlCheck","WebhooksApiDb-check"),
+};
+
+app.MapSpeacificHelthCheck(hcRout);
 //when call this point we will execut the sql quety in master database to i nsure is helthy or not 
 //and you can coustem check in any time 
+
+app.UseServiceDefaults();
 
 using (var scope = app.Services.CreateScope())
 {
@@ -82,10 +85,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 app.UseHttpsRedirection();
-
-app.UseAuthorization();
 
 app.MapControllers();
 

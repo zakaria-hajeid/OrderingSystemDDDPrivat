@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="7.1.0" />
     <PackageReference Include="FluentValidation" Version="11.7.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.7.1" />
     <PackageReference Include="Mapster" Version="7.3.0" />
@@ -25,12 +26,7 @@
     <ProjectReference Include="..\External\Ordering.Infrastructure\Ordering.Infrastructure.csproj" />
     <ProjectReference Include="..\External\Ordering.Persistence\Ordering.Persistence.csproj" />
     <ProjectReference Include="..\IntegrationEventLogEF\IntegrationEventLogEF.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Service.Common">
-      <HintPath>..\Service.Common\bin\Debug\net7.0\Service.Common.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\Service.Common\Service.Common.csproj" />
   </ItemGroup>
 
 </Project>

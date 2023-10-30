@@ -1,12 +1,15 @@
 using EventBus.Abstraction;
 using EventBus.Events;
+using HealthChecks.UI.Client;
 using IntegrationEventLogEF.DbContexts;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Ordering.Persistence;
 using Ordering.Persistence.SeedWorks;
 using OrderingSystemDDD.Configration;
 using OrderingSystemDDD.Prsentions;
+using Service.Common.Extinsions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +21,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.AddServiceDefaults();
 
 var app = builder.Build();
 app.AddOrderEndPoints();
@@ -44,9 +48,14 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
+
+app.MapHealthChecks("/hc", new HealthCheckOptions()
+{
+    Predicate = _ => true,
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse //to write reportUi helth check
+});
+
 
 app.MapControllers();
-
+app.UseServiceDefaults();
 app.Run();

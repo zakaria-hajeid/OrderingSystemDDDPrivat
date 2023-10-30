@@ -41,7 +41,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ordering.SignalrHub", "Orde
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Webhooks", "Webhooks", "{B1F6E584-91ED-4B84-A3FE-06EF5F40A305}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Webhooks.api", "Webhooks.api\Webhooks.api.csproj", "{511AA4E5-4961-475A-A382-0634058355FF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Webhooks.api", "Webhooks.api\Webhooks.api.csproj", "{511AA4E5-4961-475A-A382-0634058355FF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ApiGateways", "ApiGateways", "{CD0A0BBD-12C9-4EEF-8B28-AF2A6D52EA5D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web.Bff.Shopping", "Web.Bff.Shopping", "{04332138-5057-4B4E-A43C-90311A2FC7EF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web.Bff.shopping.HttpAggregator", "Web.Bff.shopping.HttpAggregator\Web.Bff.shopping.HttpAggregator.csproj", "{780300D8-A91B-488C-A85C-912236FD3ED1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -93,6 +99,10 @@ Global
 		{511AA4E5-4961-475A-A382-0634058355FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{511AA4E5-4961-475A-A382-0634058355FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{511AA4E5-4961-475A-A382-0634058355FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{780300D8-A91B-488C-A85C-912236FD3ED1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{780300D8-A91B-488C-A85C-912236FD3ED1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{780300D8-A91B-488C-A85C-912236FD3ED1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{780300D8-A91B-488C-A85C-912236FD3ED1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -112,6 +122,8 @@ Global
 		{B02C1FC3-5DD7-44F3-8E32-F15C29722E53} = {86151B22-6ADF-49DA-9FC4-A6C60D5C19D4}
 		{B1F6E584-91ED-4B84-A3FE-06EF5F40A305} = {A5494454-3C73-424A-B382-E1968E06B948}
 		{511AA4E5-4961-475A-A382-0634058355FF} = {B1F6E584-91ED-4B84-A3FE-06EF5F40A305}
+		{04332138-5057-4B4E-A43C-90311A2FC7EF} = {CD0A0BBD-12C9-4EEF-8B28-AF2A6D52EA5D}
+		{780300D8-A91B-488C-A85C-912236FD3ED1} = {04332138-5057-4B4E-A43C-90311A2FC7EF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A6A69EE1-D915-4A06-BDED-BAC8F4E39EA7}

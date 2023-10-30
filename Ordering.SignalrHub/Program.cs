@@ -1,8 +1,11 @@
 using EventBus.Abstraction;
 using EventBus.Events;
+using IntegrationEventLogEF.DbContexts;
 using MassTransit;
+using Microsoft.Extensions.DependencyInjection;
+using Ordering.SignalrHub;
+using Ordering.SignalrHub.Hubs;
 using Ordering.SignalrHub.IntegrationEventHandling.EventHandling;
-using Service.Common.Extinsions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,8 +27,11 @@ queueNameWithConsumers.Add("IntegrationEvent", new List<Action<IRabbitMqReceiveE
     }
 });
 builder.Services.AddSharedServices(builder.Configuration,true,queueNameWithConsumers) ;
-
+builder.Services.AddSignalR();
 var app = builder.Build();
+app.MapHub<NotificationsHub>("/hub/notificationhub");
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
