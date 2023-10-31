@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.AspNetCore.Http;
 using System.Threading.RateLimiting;
 
 internal static class Extensions
@@ -25,15 +26,20 @@ internal static class Extensions
     {
         services.AddRateLimiter(options =>
         {
-            options.AddPolicy("fixed-by-ip", httpContext =>
-                RateLimitPartition.GetFixedWindowLimiter(
-                    partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(),
+            options.RejectionStatusCode = 429;
+            options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+            {
+           
+            return RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: context.Connection.RemoteIpAddress?.ToString(),
                     factory: _ => new FixedWindowRateLimiterOptions
                     {
                         PermitLimit = 2,
                         Window = TimeSpan.FromSeconds(10)
-                    }));
+                    })!; 
+            });
         });
+       
         return services;
     }
 

@@ -1,7 +1,10 @@
+using MassTransit.Configuration;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Service.Common.Extinsions;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +22,7 @@ builder.Services.AddUrlGroupHealthChecks(builder.Configuration);
 builder.Services.AddRateLinitingIpAddress();
 
 
-//
+
 
 builder.Services.AddReverseProxy(builder.Configuration);
 builder.Services.AddCors(options =>
@@ -57,5 +60,32 @@ app.UseServiceDefaults();
 
 app.MapControllers();
 app.MapReverseProxy();
+
+//using token bucket Manually by pipline without add rate limiting servive 
+/*app.UseRateLimiter(new RateLimiterOptions
+{
+
+    GlobalLimiter= PartitionedRateLimiter.Create<HttpContext, string>(context =>
+    {
+        if(context.Request.Path== "/GetWeatherForecast")
+        {
+            return RateLimitPartition.GetNoLimiter<string>("UnlimitRequest");
+        }
+        return RateLimitPartition.GetTokenBucketLimiter("Token", _ =>
+        {
+
+            return new TokenBucketRateLimiterOptions()
+            {
+                TokenLimit = 10,
+                QueueProcessingOrder = QueueProcessingOrder.NewestFirst,
+                QueueLimit = 0,
+                ReplenishmentPeriod = TimeSpan.FromSeconds(5),
+                TokensPerPeriod = 5
+
+            };
+        });
+    }),RejectionStatusCode=429
+
+});*/
 app.UseRateLimiter();
 app.Run();
