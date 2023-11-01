@@ -52,7 +52,7 @@ queueNameWithConsumers.Add("IntegrationEvent", new List<Action<IRabbitMqReceiveE
         endpoint.UseMessageRetry(x=>x.Interval(int.Parse(builder.Configuration["EventBusMessageBroker:RetryCount"]),int.Parse(builder.Configuration["EventBusMessageBroker:Interval"])));
     }
 });
-builder.Services.AddSharedServices(builder.Configuration, true, queueNameWithConsumers);
+builder.Services.AddEventBusSharedServices(builder.Configuration, true, queueNameWithConsumers);
 
 
 var app = builder.Build();

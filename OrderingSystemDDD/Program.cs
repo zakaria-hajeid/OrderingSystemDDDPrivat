@@ -9,7 +9,10 @@ using Ordering.Persistence;
 using Ordering.Persistence.SeedWorks;
 using OrderingSystemDDD.Configration;
 using OrderingSystemDDD.Prsentions;
+using Quartz.Impl;
+using Quartz;
 using Service.Common.Extinsions;
+using Ordering.Infrastructure.BackGroundJobs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,9 +31,10 @@ app.AddOrderEndPoints();
 
 using (var scope = app.Services.CreateScope())
 {
-   /* var bus = scope.ServiceProvider.GetRequiredService<IEventBus>();
-    await bus.Publish(new IntegrationEvent() { assymblyName="za"});
-   */
+    
+    /* var bus = scope.ServiceProvider.GetRequiredService<IEventBus>();
+     await bus.Publish(new IntegrationEvent() { assymblyName="za"});
+    */
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     var logger = app.Services.GetService<ILogger<OrderingContextSeed>>();
 

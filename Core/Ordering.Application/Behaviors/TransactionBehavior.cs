@@ -66,8 +66,8 @@ namespace Ordering.Application.Behaviors
                                         await _applicationDbContext.CommitTransactionAsync(transaction);
                                         transactionId = transaction.TransactionId;
                                     }
-
-                                    await _orderingIntegrationEventService.PublishEventsThroughEventBusAsync(transactionId);
+                                    // handle publish failier   using backGroundJob 
+                                     await _orderingIntegrationEventService.PublishEventsThroughEventBusAsync(transactionId);
                                 });
 
                                 return response;

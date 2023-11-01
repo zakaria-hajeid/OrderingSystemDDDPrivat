@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Ordering.Persistence;
 using Service.Common.Extinsions;
+using Ordering.Domain.Sahred;
+using Microsoft.AspNetCore.Server.IIS.Core;
 
 namespace OrderingSystemDDD.Extinsions
 {
@@ -28,6 +30,21 @@ namespace OrderingSystemDDD.Extinsions
             });*/
             return services;
         }
+
+        public static T Match<T>(this Result result, Func<T> onSuccess, Func<Error[], T> onFailure)
+        {
+            if(result is IValidationResult)
+            {
+                IValidationResult validationResult  = (IValidationResult)result;
+                return onFailure(validationResult.Errors);
+            }
+            Error[] errors = new Error[]
+            {
+                result.Error
+            };
+            return result.IsSuccess ? onSuccess() : onFailure(errors);
+        }
+
 
     }
 }

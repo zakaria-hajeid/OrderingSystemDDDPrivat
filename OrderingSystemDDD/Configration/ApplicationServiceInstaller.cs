@@ -16,16 +16,16 @@ namespace OrderingSystemDDD.Configration
             {
             cfg.RegisterServicesFromAssemblyContaining(typeof(AssemblyReference));
              //The area the use the request and request handler
-             // cfg.NotificationPublisher = new ForeachAwaitPublisher(); each notification handler execute one by one
-             //cfg.NotificationPublisher = new TaskWhenAllPublisher(); each notification handler execute in parallel way
+              //cfg.NotificationPublisher = new ForeachAwaitPublisher();each notification handler execute one by one
+             cfg.NotificationPublisher = new TaskWhenAllPublisher(); //each notification handler execute in parallel way
              //cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
-             // cfg.AddOpenBehavior(typeof(ValidatorBehavior<,>));
+             cfg.AddOpenBehavior(typeof(ValidatorBehavior<,>));
              cfg.AddOpenBehavior(typeof(TransactionBehavior<,>));
             });
 
             services.AddValidatorsFromAssembly(AssemblyReference.assembly);
 
-            services.AddSharedServices(configuration);
+            services.AddEventBusSharedServices(configuration);
         }
     }
 }

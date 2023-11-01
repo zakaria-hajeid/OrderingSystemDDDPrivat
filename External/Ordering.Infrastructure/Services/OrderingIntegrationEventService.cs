@@ -1,5 +1,7 @@
 ﻿using EventBus.Abstraction;
 using EventBus.Events;
+using IntegrationEventLogEF.Entities;
+using IntegrationEventLogEF.Enums;
 using IntegrationEventLogEF.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -40,6 +42,13 @@ public class OrderingIntegrationEventService : IOrderingIntegrationEventService
         _logger = logger;
     }
 
+    public async Task<IEnumerable<IntegrationEventOutbox>> GetFailedIntegartionEvents()
+    {
+        var pendingLogEvents = await _eventLogService.RetrieveFailedPublishEvent();
+
+        return pendingLogEvents;
+    }
+
     public async Task PublishEventsThroughEventBusAsync(Guid transactionId)
     {
         var pendingLogEvents = await _eventLogService.RetrieveEventLogsPendingToPublishAsync(transactionId);
@@ -50,15 +59,15 @@ public class OrderingIntegrationEventService : IOrderingIntegrationEventService
 
             try
             {
-                await _eventLogService.MarkEventAsInProgressAsync(logEvt.EventId);
+                await _eventLogService.UpdateEventState(logEvt.EventId, EventStateEnum.InProgress);
                 await _eventBus.Publish(logEvt.IntegrationEvent);
-                await _eventLogService.MarkEventAsPublishedAsync(logEvt.EventId);
+                await _eventLogService.UpdateEventState(logEvt.EventId, EventStateEnum.Published);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error publishing integration event: {IntegrationEventId}", logEvt.EventId);
 
-                await _eventLogService.MarkEventAsFailedAsync(logEvt.EventId);
+                await _eventLogService.UpdateEventState(logEvt.EventId, EventStateEnum.PublishedFailed);
             }
         }
     }

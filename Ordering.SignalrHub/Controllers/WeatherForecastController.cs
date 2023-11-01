@@ -30,7 +30,7 @@ namespace Ordering.SignalrHub.Controllers
                  Summary = Summaries[Random.Shared.Next(Summaries.Length)]
              })
              .ToArray();*/
-            await _w.send("zakaria");
+           // await _w.send("zakaria");
 
 
             return Enumerable.Empty<WeatherForecast>();

@@ -60,21 +60,6 @@
             await _integrationEventLogContext.SaveChangesAsync();
 
         }
-        public Task MarkEventAsPublishedAsync(Guid eventId)
-        {
-            return UpdateEventStatus(eventId, EventStateEnum.Published);
-        }
-
-        public Task MarkEventAsInProgressAsync(Guid eventId)
-        {
-            return UpdateEventStatus(eventId, EventStateEnum.InProgress);
-        }
-
-        public Task MarkEventAsFailedAsync(Guid eventId)
-        {
-            return UpdateEventStatus(eventId, EventStateEnum.PublishedFailed);
-        }
-
         private Task UpdateEventStatus(Guid eventId, EventStateEnum status)
         {
             var eventLogEntry = _integrationEventLogContext.IntegrationEventLogs.Single(ie => ie.EventId == eventId);
@@ -90,6 +75,32 @@
         public void DisposeContext()
         {
             _integrationEventLogContext?.Dispose();
+        }
+        public async Task<IEnumerable<IntegrationEventOutbox>> RetrieveFailedPublishEvent()
+        {
+            var result = await _integrationEventLogContext.IntegrationEventLogs
+                               .Where(e => e.State == EventStateEnum.PublishedFailed)
+                               .ToListAsync();
+            if (!result.Any())
+            {
+                return Enumerable.Empty<IntegrationEventOutbox>();
+            }
+
+            List<Type> _eventTypes = Assembly.Load(result.Select(X => X.eventAssymblyName).FirstOrDefault()!) //call the application service 
+                                             .GetTypes()
+                                             .Where(t => typeof(IntegrationEvent).IsAssignableFrom(t)
+                                                         && !t.IsInterface && !t.IsAbstract)
+                                             .ToList();
+
+            if (result.Any())
+            {
+                //DESERILIZE THE CONTENT STRIN IN SPEACIFIC
+                //IntegrationEvent CLASS AND ASSIGN IN IntegrationEvent PROPERTY
+                return result.OrderBy(o => o.CreationTime)
+                             .Select(e => e.DeserializeJsonContent(_eventTypes.Find(t => t.Name == e.EventTypeShortName)));
+            }
+
+            return new List<IntegrationEventOutbox>();
         }
 
 

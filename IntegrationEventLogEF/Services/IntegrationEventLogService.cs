@@ -21,21 +21,6 @@ public class IntegrationEventLogService : IIntegrationEventLogService, IDisposab
         await _integrationOutboxRepository.SaveChangesAsync(transaction);
     }
 
-    public async Task MarkEventAsPublishedAsync(Guid eventId)
-    {
-        await UpdateEventStatus(eventId, EventStateEnum.Published);
-    }
-
-    public async Task MarkEventAsInProgressAsync(Guid eventId)
-    {
-        await UpdateEventStatus(eventId, EventStateEnum.InProgress);
-    }
-
-    public async Task MarkEventAsFailedAsync(Guid eventId)
-    {
-        await UpdateEventStatus(eventId, EventStateEnum.PublishedFailed);
-    }
-
     private async Task UpdateEventStatus(Guid eventId, EventStateEnum eventStateEnum)
     {
         IntegrationEventOutbox integrationEventOutbox = await RetrieveEventById(eventId);
@@ -47,6 +32,16 @@ public class IntegrationEventLogService : IIntegrationEventLogService, IDisposab
     {
         IntegrationEventOutbox eventLogEntry = await _integrationOutboxRepository.RetrieveEventById(eventId);
         return eventLogEntry;
+    }
+
+    public async Task<IEnumerable<IntegrationEventOutbox>> RetrieveEventLogsPendingToPublishAsync(Guid transactionId)
+    {
+        return await _integrationOutboxRepository.RetrieveEventLogsPendingToPublishAsync(transactionId);
+    }
+
+    public async Task UpdateEventState(Guid eventId, EventStateEnum eventStateEnum)
+    {
+        await UpdateEventStatus(eventId, eventStateEnum);
     }
 
     protected virtual void Dispose(bool disposing)
@@ -67,8 +62,8 @@ public class IntegrationEventLogService : IIntegrationEventLogService, IDisposab
         GC.SuppressFinalize(this);
     }
 
-    public async Task<IEnumerable<IntegrationEventOutbox>> RetrieveEventLogsPendingToPublishAsync(Guid transactionId)
+    public async Task<IEnumerable<IntegrationEventOutbox>> RetrieveFailedPublishEvent()
     {
-        return await _integrationOutboxRepository.RetrieveEventLogsPendingToPublishAsync(transactionId);
+        return await _integrationOutboxRepository.RetrieveFailedPublishEvent();
     }
 }

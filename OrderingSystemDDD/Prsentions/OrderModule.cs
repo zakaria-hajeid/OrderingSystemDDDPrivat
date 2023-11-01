@@ -7,6 +7,11 @@ using Microsoft.AspNetCore.SignalR;
 using Ordering.Application.Dtos.CreateOrderDtos;
 using Ordering.Application.Order.Commands;
 using Ordering.Domain.Sahred;
+using Ordering.Infrastructure.BackGroundJobs;
+using Quartz.Impl;
+using Quartz;
+using OrderingSystemDDD.Extinsions;
+using System.Reflection.Metadata.Ecma335;
 
 namespace OrderingSystemDDD.Prsentions
 {
@@ -17,41 +22,18 @@ namespace OrderingSystemDDD.Prsentions
             app.MapPost("/Order", async (ISender sender, OrederCommand createOrder) =>
             {
 
-              // OrederCommand orederCommand = createOrder.Adapt<OrederCommand>();
-               var result = await sender.Send(createOrder);
-                if(result != null && result.IsSuccess) {
-                    return Results.Ok();//or  TypedResults.Ok(payload)
-
-                }
-                else
-                {
-                    return Results.BadRequest();
-                }
-                //return Handle(result);
+                // OrederCommand orederCommand = createOrder.Adapt<OrederCommand>();
+                var result = await sender.Send(createOrder);
+                return result.Match(onSuccess: () => Results.Ok(), onFailure: f => Results.BadRequest(f));
             })
-                .Produces(StatusCodes.Status400BadRequest)
+              .Produces(StatusCodes.Status400BadRequest)
               .Produces(StatusCodes.Status200OK)
-               // .AddEndpointFilter<"s"> speacfic filter 
+              // .AddEndpointFilter<"s"> speacfic filter 
               //.RequireAuthorization()
               .WithName("CreateOrderCommand")
               .WithTags("Order");
         }
-      /*  public static IActionResult Handle(Result result) { 
-
-/*return new StatusCodeResult.();*/
-                
-      //  }
-
 
 
     }
-    public class BadRequest : BadRequestResult
-    {
-        public BadRequest():
-            base()
-        {
-
-        }
-    }
-
 }

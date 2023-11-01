@@ -1,10 +1,4 @@
-using MassTransit.Configuration;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Service.Common.Extinsions;
-using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,14 +8,16 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 builder.AddServiceDefaults();
+
+////Move to common service  by send flag to type of HC
 //Helth check for urls 
 
 builder.Services.AddUrlGroupHealthChecks(builder.Configuration);
 
+//Move to common service 
 builder.Services.AddRateLinitingIpAddress();
-
-
 
 
 builder.Services.AddReverseProxy(builder.Configuration);
@@ -51,7 +47,6 @@ List<KeyValuePair<string, string>> hcRout = new List<KeyValuePair<string, string
     new KeyValuePair<string, string>("IdentityUrlHC","Identity-check"),
 
 };
-
 app.MapSpeacificHelthCheck(hcRout);
 
 app.UseHttpsRedirection();
@@ -62,6 +57,7 @@ app.MapControllers();
 app.MapReverseProxy();
 
 //using token bucket Manually by pipline without add rate limiting servive 
+
 /*app.UseRateLimiter(new RateLimiterOptions
 {
 

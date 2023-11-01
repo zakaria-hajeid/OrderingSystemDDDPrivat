@@ -23,7 +23,7 @@ namespace Ordering.Application.Behaviors
         }
         public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
-            if (_validators.Any())//if no have any validators for command 
+            if (!_validators.Any())//if no have any validators for command 
             {
                 return await next();
             }
