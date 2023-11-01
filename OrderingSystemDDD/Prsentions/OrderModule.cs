@@ -19,7 +19,7 @@ namespace OrderingSystemDDD.Prsentions
     {
         public static void AddOrderEndPoints(this IEndpointRouteBuilder app)
         {
-            app.MapPost("/Order", async (ISender sender, OrederCommand createOrder) =>
+            app.MapPost("/Order", async (ISender sender, [FromHeader(Name ="X-Idompotency-Key")]string requestId,OrederCommand createOrder) =>
             {
 
                 // OrederCommand orederCommand = createOrder.Adapt<OrederCommand>();
