@@ -37,7 +37,6 @@ namespace Ordering.Application.Order.Commands
             if (AddOrderItem.All(x => x.IsSuccess))
             {
                 await _orderRepository.Add(order);
-                var x = order.Id;
                 await _orderRepository.UnitOfWork.PublishEventAsyncAsync();
                 return Result.success();
             }
