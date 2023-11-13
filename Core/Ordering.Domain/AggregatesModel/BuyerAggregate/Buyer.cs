@@ -1,10 +1,6 @@
-﻿using Ordering.Domain.Errors;
-using Ordering.Domain.Events;
+﻿using Ordering.Domain.Events;
 using Ordering.Domain.Prematives;
-using Ordering.Domain.Repository;
 using Ordering.Domain.Sahred;
-using System.Runtime.InteropServices;
-using System.Security.Principal;
 
 namespace Ordering.Domain.AggregatesModel.BuyerAggregate;
 
@@ -32,7 +28,7 @@ public class Buyer : AggregateRoot
 
     /* int cardTypeId, string alias, string cardNumber,
         string securityNumber, string cardHolderName, DateTime expiration, int orderId*/
-    private Result<PaymentMethod> VerifyOrAddPaymentMethod(OrderStartedDomainEvent @event)
+    public Result<PaymentMethod> VerifyOrAddPaymentMethod(OrderStartedDomainEvent @event)
     {
         var cardTypeId = @event.cardTypeId != 0 ? @event.cardTypeId : 1;
 
@@ -61,8 +57,8 @@ public class Buyer : AggregateRoot
 
 
     }
-
-    public async static Task<Result<Buyer>> UpdateOrCreate(OrderStartedDomainEvent @event, IBuyerRepository buyerRepository)
+    
+    /*public async static Task<Result<Buyer>> UpdateOrCreate(OrderStartedDomainEvent @event, IBuyerRepository buyerRepository)
     {
         var buyer = await buyerRepository.FindAsync(@event.userId);
         if (buyer == null)
@@ -86,5 +82,11 @@ public class Buyer : AggregateRoot
         await buyerRepository.AddOrUpdate(buyer);
         return buyer;
 
+    }
+    using domain service insted of this (tactical pattern )
+     */
+    public static Buyer create(string identity, string name)
+    {
+        return new(identity, name);
     }
 }

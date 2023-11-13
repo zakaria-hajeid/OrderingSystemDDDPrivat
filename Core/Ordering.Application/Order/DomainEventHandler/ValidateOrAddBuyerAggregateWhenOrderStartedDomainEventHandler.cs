@@ -14,21 +14,24 @@ internal sealed class ValidateOrAddBuyerAggregateWhenOrderStartedDomainEventHand
     private readonly ILogger _logger;
     private readonly IBuyerRepository _buyerRepository;
     private readonly IOrderingIntegrationEventService _orderingIntegrationEventService;
+    private readonly IBuyerService _buyerService;
 
     public ValidateOrAddBuyerAggregateWhenOrderStartedDomainEventHandler(
         ILogger<ValidateOrAddBuyerAggregateWhenOrderStartedDomainEventHandler> logger,
         IBuyerRepository buyerRepository,
-        IOrderingIntegrationEventService orderingIntegrationEventService)
+        IOrderingIntegrationEventService orderingIntegrationEventService,
+        IBuyerService buyerService)
     {
         _buyerRepository = buyerRepository ?? throw new ArgumentNullException(nameof(buyerRepository));
         _orderingIntegrationEventService = orderingIntegrationEventService ?? throw new ArgumentNullException(nameof(orderingIntegrationEventService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _buyerService = buyerService;
     }
 
     public async Task Handle(OrderStartedDomainEvent domainEvent, CancellationToken cancellationToken)
     {
 
-        var byerCreate = await Buyer.UpdateOrCreate(domainEvent, _buyerRepository);
+        var byerCreate = await _buyerService.UpdateOrCreate(domainEvent);
         if (byerCreate.IsFailuer)
         {
             throw new InvalidOperationException(byerCreate.Error.Message);

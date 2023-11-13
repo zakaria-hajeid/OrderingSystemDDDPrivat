@@ -1,9 +1,7 @@
 ﻿using IntegrationEventLogEF.Repository;
 using IntegrationEventLogEF.Services;
-using MassTransit;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Ordering.Application.Services;
+using Ordering.Domain.AggregatesModel.BuyerAggregate;
 using Ordering.Domain.Prematives;
 using Ordering.Domain.Repository;
 using Ordering.Infrastructure.BackGroundJobs;
@@ -15,7 +13,6 @@ using Polly;
 using Polly.CircuitBreaker;
 using Polly.Retry;
 using Quartz;
-using Service.Common.Extinsions;
 using System.Data.Common;
 
 namespace OrderingSystemDDD.Configration
@@ -26,11 +23,11 @@ namespace OrderingSystemDDD.Configration
         {
 
             services.AddDbContextsExtinstions(configuration);
-            // services.AddScoped<IUnitOfWork, ApplicationDbContext>();
             services.AddScoped<IUnitOfWork, ApplicationDbContext>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IBuyerRepository, BuyerRepository>();
+            services.AddScoped<IBuyerService, BuyerService>();
             services.AddTransient<IOrderingIntegrationEventService, OrderingIntegrationEventService>();
 
             services.AddTransient<Func<DbConnection, IIntegrationEventLogService>>(
@@ -55,7 +52,7 @@ namespace OrderingSystemDDD.Configration
                 //configure.UseMicrosoftDependencyInjectionJobFactory(); is default 
             });
 
-            services.AddResiliencePipeline("Fault-Event-Publish",
+    services.AddResiliencePipeline("Fault-Event-Publish",
                 pip =>
                 {
                     pip.AddRetry(new RetryStrategyOptions
@@ -89,11 +86,18 @@ namespace OrderingSystemDDD.Configration
 
                           },
                     });
+                    /*pip.AddFallback<object> (new FallbackStrategyOptions<object>
+                    {
+                        ShouldHandle = new PredicateBuilder()
+                    .Handle<ApplicationException>(),
+                        FallbackAction = r => Outcome.FromResultAsValueTask(new object())
+                    }); */
+
                     pip.Build();
                 }
                 );
-        }
+}
 
 
     }
-}
+    }

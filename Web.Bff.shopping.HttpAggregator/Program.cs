@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Versioning;
 using Service.Common.Extinsions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,14 +8,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddApiVersioning();
 
 builder.AddServiceDefaults();
 
+
 ////Move to common service  by send flag to type of HC
 //Helth check for urls 
-
+builder.Services.AddApiVersioning(option =>
+{
+    option.DefaultApiVersion = new ApiVersion(1,0);
+    option.AssumeDefaultVersionWhenUnspecified = true;
+    option.ApiVersionReader = new UrlSegmentApiVersionReader();
+});
+builder.Services.AddSwaggerGen();
 builder.Services.AddUrlGroupHealthChecks(builder.Configuration);
 
 //Move to common service 
@@ -33,7 +41,7 @@ builder.Services.AddCors(options =>
 });
 var app = builder.Build();
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsProduction())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
@@ -82,6 +90,9 @@ app.MapReverseProxy();
         });
     }),RejectionStatusCode=429
 
+
 });*/
+ 
 app.UseRateLimiter();
+app.UseApiVersioning();
 app.Run();
