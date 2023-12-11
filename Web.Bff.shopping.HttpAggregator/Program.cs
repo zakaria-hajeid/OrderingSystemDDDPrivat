@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Versioning;
+using Service.Common;
 using Service.Common.Extinsions;
+using Web.Bff.shopping.HttpAggregator.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,25 +8,32 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddApiVersioning();
+
+//builder.Services.AddApiVersioning();
 
 builder.AddServiceDefaults();
 
 
 ////Move to common service  by send flag to type of HC
 //Helth check for urls 
-builder.Services.AddApiVersioning(option =>
+/*builder.Services.AddApiVersioning(option =>
 {
-    option.DefaultApiVersion = new ApiVersion(1,0);
+    option.DefaultApiVersion = new ApiVersion(1, 0);
     option.AssumeDefaultVersionWhenUnspecified = true;
     option.ApiVersionReader = new UrlSegmentApiVersionReader();
-});
+});*/
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<HttpClientAuthorizationDelegatingHandler>();
 builder.Services.AddSwaggerGen();
 builder.Services.AddUrlGroupHealthChecks(builder.Configuration);
 
 //Move to common service 
 builder.Services.AddRateLinitingIpAddress();
+builder.Services.AddAuthinticationOption(builder.Configuration);
 
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient(builder.Configuration);
 
 builder.Services.AddReverseProxy(builder.Configuration);
 builder.Services.AddCors(options =>
@@ -41,12 +48,14 @@ builder.Services.AddCors(options =>
 });
 var app = builder.Build();
 // Configure the HTTP request pipeline.
-if (app.Environment.IsProduction())
+/*if (app.Environment.IsProduction())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
+  
+}*/
+app.UseSwagger();
+app.UseSwaggerUI();
+app.UseAuthentication();
+app.UseAuthorization();
 List<KeyValuePair<string, string>> hcRout = new List<KeyValuePair<string, string>>()
 {
     new KeyValuePair<string, string>("OrderingUrlHC","Ordering-check"),
@@ -92,7 +101,7 @@ app.MapReverseProxy();
 
 
 });*/
- 
+
 app.UseRateLimiter();
-app.UseApiVersioning();
+//app.UseApiVersioning();
 app.Run();

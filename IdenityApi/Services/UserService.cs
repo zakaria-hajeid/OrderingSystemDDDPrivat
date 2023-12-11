@@ -31,24 +31,25 @@ namespace IdenityApi.Services
         {
             return _httpContextAccessor.HttpContext?.User.Claims;
         }
-        public async Task<ClaimsIdentity> GetClaimToken(string accessToken)
+        public  async Task<ClaimsPrincipal> GetClaimToken(string accessToken)
         {
 
             var tokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config["Jwt:SecretKey"])),
-                ValidateIssuer = false,
-                ValidateLifetime = false,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config["Jwt:SecretKey"]!)),
+                ValidateIssuer = true,
+                ValidateLifetime = true,
                 ValidIssuer = _config["Jwt:Issuer"],
-                //ValidAudience = _config["Jwt:Audience"],
+                ValidAudience = _config["Jwt:Audience"],
             };
             var tokenHandler = new JwtSecurityTokenHandler();
-            var result =  await tokenHandler.ValidateTokenAsync(accessToken, tokenValidationParameters);
-            var jwtSecurityToken = result.SecurityToken as JwtSecurityToken;
+            SecurityToken token ; 
+            var result =   tokenHandler.ValidateToken(accessToken, tokenValidationParameters,out  token );
+            var jwtSecurityToken = token as JwtSecurityToken;
             if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha512, StringComparison.InvariantCultureIgnoreCase))
                 throw new SecurityTokenException("Invalid token");
-            return result.ClaimsIdentity;
+            return await Task.FromResult(result);
         }
 
         public async Task<IdentityResult> CreateaUser(ApplicationUser user, string password)
@@ -68,17 +69,14 @@ namespace IdenityApi.Services
             if (result.Succeeded)
             {
                 ApplicationUser? appUser = await _userManager.Users.FirstOrDefaultAsync(u => u.NormalizedUserName == user.UserName.ToUpper());
-                IList<string> Roles = await _userManager.GetRolesAsync(appUser);
+                //IList<string> Roles = await _userManager.GetRolesAsync(appUser); add role validator in app setting to active 
 
 
                 List<Claim> claims = new List<Claim>{
                 new Claim(ClaimTypes.Name,user.UserName),
                 new Claim(ClaimTypes.NameIdentifier,user.UserName)
             };
-                foreach (var role in Roles)
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, role));
-                }
+               
 
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:SecretKey"]));
                 var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
@@ -88,7 +86,7 @@ namespace IdenityApi.Services
                     Expires = DateTime.Now.AddDays(Convert.ToDouble(_config["Jwt:ExpiresDayes"])),
                     SigningCredentials = creds,
                     Issuer = _config["Jwt:Issuer"],
-                   // Audience = _config["Jwt:Audience"],
+                    Audience = _config["Jwt:Audience"],
                 };
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -100,6 +98,33 @@ namespace IdenityApi.Services
 
 
         }
+
+
+        //todo :add refresh token 
+        /*public async Task<LoginResult> RefreshToken(LoginResultDtos TokenModel)
+        {
+
+            string accessToken = TokenModel.Token;
+            string refreshToken = TokenModel.RefreshToken;
+            var principal = await tokenServices.GetClaimToken(accessToken);
+            var username = principal.Identity.Name; //this is mapped to the Name claim by default
+            var user = await _Db.Users.FirstOrDefaultAsync(u => u.UserName == username);
+            if (user is null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
+                return null;
+            IList<string> Roles = await _userManager.GetRolesAsync(user);
+
+            tokenStrategyContext = new TokenStrategyContext(TokenFactoryMethod(TokenType.JWT));
+            string refreshTokenCreate = await tokenServices.CreateRefreshToken();
+
+            object token = await tokenStrategyContext.CreateToken(user, Roles, refreshTokenCreate);
+
+            return new LoginResult()
+            {
+                Token = (string)token.GetType()?.GetProperty("token")?.GetValue(token),
+                RefreshToken = (string)token.GetType()?.GetProperty("refreshToken")?.GetValue(token)
+
+            };
+        }*/
 
     }
 }
