@@ -36,15 +36,18 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient(builder.Configuration);
 
 builder.Services.AddReverseProxy(builder.Configuration);
+builder.Services.AddCors();
+
 builder.Services.AddCors(options =>
 {
     // TODO: Read allowed origins from configuration
     options.AddPolicy("CorsPolicy",
         builder => builder
-        .SetIsOriginAllowed((host) => true)
+        //.SetIsOriginAllowed((host) => true)
+        .AllowAnyOrigin()
         .AllowAnyMethod()
         .AllowAnyHeader()
-        .AllowCredentials());
+        );
 });
 var app = builder.Build();
 // Configure the HTTP request pipeline.
@@ -65,6 +68,7 @@ List<KeyValuePair<string, string>> hcRout = new List<KeyValuePair<string, string
 
 };
 app.MapSpeacificHelthCheck(hcRout);
+app.UseCors(x=>x.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 
 app.UseHttpsRedirection();
 app.UseCors("CorsPolicy");
