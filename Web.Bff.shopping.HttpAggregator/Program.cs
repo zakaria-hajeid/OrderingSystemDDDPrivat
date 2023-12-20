@@ -1,6 +1,10 @@
+using Microsoft.Extensions.DependencyInjection;
 using Service.Common;
 using Service.Common.Extinsions;
+using System.Text;
 using Web.Bff.shopping.HttpAggregator.Services;
+using Yarp.ReverseProxy.Transforms;
+using Yarp.ReverseProxy.Transforms.Builder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +40,27 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient(builder.Configuration);
 
 builder.Services.AddReverseProxy(builder.Configuration);
+//coustem  trnasform
+/*builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
+    .AddTransforms ( async transform =>
+    {
+        transform.AddRequestTransform(async(context) =>
+        {
+            var httpContext = context.HttpContext;
+            string? requestBody = "";
+            httpContext.Request.Body.Position = 0;
+            using (StreamReader sr = new StreamReader(httpContext.Request.Body, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, leaveOpen: true))
+            {
+                requestBody = await sr.ReadToEndAsync();
+            }
+
+            var replacedContent = requestBody.Replace("%PLACEHOLDER%", "Hello");
+            var requestContent = new StringContent(replacedContent, Encoding.UTF8, "application/json");
+            httpContext.Request.Body = requestContent.ReadAsStream();
+            httpContext.Request.ContentLength = httpContext.Request.Body.Length;
+        });
+    })
+    ;*/
 builder.Services.AddCors();
 
 builder.Services.AddCors(options =>
