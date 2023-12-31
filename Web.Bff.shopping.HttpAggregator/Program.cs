@@ -1,10 +1,7 @@
-using Microsoft.Extensions.DependencyInjection;
+using Asp.Versioning;
 using Service.Common;
 using Service.Common.Extinsions;
-using System.Text;
 using Web.Bff.shopping.HttpAggregator.Services;
-using Yarp.ReverseProxy.Transforms;
-using Yarp.ReverseProxy.Transforms.Builder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,20 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-
-//builder.Services.AddApiVersioning();
-
 builder.AddServiceDefaults();
-
-
 ////Move to common service  by send flag to type of HC
 //Helth check for urls 
-/*builder.Services.AddApiVersioning(option =>
-{
-    option.DefaultApiVersion = new ApiVersion(1, 0);
-    option.AssumeDefaultVersionWhenUnspecified = true;
-    option.ApiVersionReader = new UrlSegmentApiVersionReader();
-});*/
+
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<HttpClientAuthorizationDelegatingHandler>();
 builder.Services.AddSwaggerGen();
@@ -61,6 +48,22 @@ builder.Services.AddReverseProxy(builder.Configuration);
         });
     })
     ;*/
+
+//Api versioning 
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1);
+    options.ReportApiVersions = true;
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ApiVersionReader = ApiVersionReader.Combine(
+        new UrlSegmentApiVersionReader(),
+        new HeaderApiVersionReader("X-Api-Version"));
+}).AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'V";
+    options.SubstituteApiVersionInUrl = true;
+});
+
 builder.Services.AddCors();
 
 builder.Services.AddCors(options =>
@@ -93,7 +96,7 @@ List<KeyValuePair<string, string>> hcRout = new List<KeyValuePair<string, string
 
 };
 app.MapSpeacificHelthCheck(hcRout);
-app.UseCors(x=>x.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+app.UseCors(x => x.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 
 app.UseHttpsRedirection();
 app.UseCors("CorsPolicy");
@@ -132,5 +135,4 @@ app.MapReverseProxy();
 });*/
 
 app.UseRateLimiter();
-//app.UseApiVersioning();
 app.Run();

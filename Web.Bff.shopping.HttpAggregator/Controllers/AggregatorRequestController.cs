@@ -1,11 +1,13 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Web.Bff.shopping.HttpAggregator.Controllers
 {
+    [ApiVersion(1)]
+    [ApiVersion(2)]
     [ApiController]
-    //[Route("v{version:apiVersion}/agg")]
-    //[Route(agg")]
-    [Route("api/[controller]")]
+    [Route("api/v{v:apiVersion}/[controller]")]
+    //[Route("api/[controller]")]
 
     public class AggregatorRequestController : ControllerBase
     {
@@ -13,14 +15,14 @@ namespace Web.Bff.shopping.HttpAggregator.Controllers
         {
 
         }
-        [HttpPost]
-        //[MapToApiVersion("1.0")]
+        [HttpPost("Order")]
+        [MapToApiVersion(1)]
         public async Task<IActionResult> OrderV1()
         {
             return Ok();
         }
-        [HttpPost]
-        //[MapToApiVersion("2.0")]
+        [HttpPost("Order")]
+        [MapToApiVersion(2)]
         public async Task<IActionResult> OrderV2()
         {
             return Ok();

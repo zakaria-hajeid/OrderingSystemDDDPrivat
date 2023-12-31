@@ -30,9 +30,9 @@ namespace IdenityApi.Controllers
                     Name = createUserModel.Name,
                     SecurityNumber = createUserModel.SecurityNumber,
                     CardHolderName = createUserModel.CardHolderName,
-                    UserName= createUserModel.Name
+                    UserName = createUserModel.Name
                 };
-               
+
                 return Ok(await _userService.CreateaUser(applicationUser, createUserModel.password));
             }
             catch (Exception ex)
@@ -60,17 +60,17 @@ namespace IdenityApi.Controllers
         }
         [Authorize]
         [HttpPost("GetCuentClaim")]
-        public async Task<IActionResult> GetCuentClaim ()
+        public async Task<IActionResult> GetCuentClaim()
         {
-        
+
             return Ok(_userService.GetCurrentUser().ToList().SelectMany(x => x.Value).ToList()); //edit response 
         }
         [Authorize]
         [HttpGet("GetClaimFromToken")]
-        public async Task<IActionResult> GetClaimFromToken( string accessToken)
+        public async Task<IActionResult> GetClaimFromToken(string accessToken)
         {
 
-            return Ok( await _userService.GetClaimToken(accessToken)); //edit response 
+            return Ok(await _userService.GetClaimToken(accessToken)); //edit response 
         }
 
     }
