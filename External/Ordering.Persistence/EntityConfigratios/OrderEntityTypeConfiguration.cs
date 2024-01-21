@@ -29,7 +29,7 @@ class OrderEntityTypeConfiguration : IEntityTypeConfiguration<Order>
             });
 
      
-
+        //propery mapping declare
         orderConfiguration
             .Property<int?>("_buyerId")
             .UsePropertyAccessMode(PropertyAccessMode.Field)
