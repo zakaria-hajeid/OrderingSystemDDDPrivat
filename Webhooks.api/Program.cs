@@ -18,7 +18,8 @@ builder.Services.AddDbContext<WebhooksContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetRequiredConnectionString("WebHooksDB"),
 
-        sqlOptions => {
+        sqlOptions =>
+        {
             sqlOptions.MigrationsAssembly("Webhooks.api");
             sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay:
                         TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
@@ -27,11 +28,11 @@ builder.Services.AddDbContext<WebhooksContext>(options =>
 
 
 //sql-helth check 
- builder.Services.AddHealthChecks().
+builder.Services.AddHealthChecks().
 AddSqlServer(_ =>
-              builder.Configuration.GetRequiredConnectionString("WebHooksDB"),
-              name: "WebhooksApiDb-check",
-              tags: new string[] { "ready" });
+             builder.Configuration.GetRequiredConnectionString("WebHooksDB"),
+             name: "WebhooksApiDb-check",
+             tags: new string[] { "ready" });
 
 //HttpClient
 builder.Services.AddHttpClient("GrantClient")
@@ -49,7 +50,10 @@ queueNameWithConsumers.Add("IntegrationEvent", new List<Action<IRabbitMqReceiveE
     (endpoint,context) =>
     {
         endpoint.Consumer<OrderStatusChangedToPaidIntegrationEventHandler>(context);
-        endpoint.UseMessageRetry(x=>x.Interval(int.Parse(builder.Configuration["EventBusMessageBroker:RetryCount"]),int.Parse(builder.Configuration["EventBusMessageBroker:Interval"])));
+        int interval,RetryCount;
+        int.TryParse(builder.Configuration["EventBusMessageBroker:Interval"],out  interval);
+        int.TryParse(builder.Configuration["EventBusMessageBroker:RetryCount"],out  RetryCount);
+        endpoint.UseMessageRetry(x=>x.Interval(RetryCount,interval));
     }
 });
 builder.Services.AddEventBusSharedServices(builder.Configuration, true, queueNameWithConsumers);
