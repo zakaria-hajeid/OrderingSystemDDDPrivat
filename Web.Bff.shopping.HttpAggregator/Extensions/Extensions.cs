@@ -9,6 +9,8 @@ using Web.Bff.shopping.HttpAggregator.Services;
 
 internal static class Extensions
 {
+    //make generic and move to common 
+
     public static IServiceCollection AddReverseProxy(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddReverseProxy().LoadFromConfig(configuration.GetRequiredSection("ReverseProxy"));
@@ -16,6 +18,7 @@ internal static class Extensions
         return services;
     }
 
+    //make generic and move to common 
     public static IServiceCollection AddUrlGroupHealthChecks(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddHealthChecks()
@@ -26,6 +29,7 @@ internal static class Extensions
         return services;
     }
 
+    //make generic with configration  and move to common (SharedKernal)
     public static IServiceCollection AddRateLinitingIpAddress(this IServiceCollection services)
     {
         services.AddRateLimiter(options =>
@@ -53,6 +57,8 @@ internal static class Extensions
         return services;
     }
 
+    //make generic and move to common 
+
     public static IServiceCollection AddAuthinticationOption(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -73,8 +79,8 @@ internal static class Extensions
     }
     public static IServiceCollection AddHttpClient(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddHttpClient<UserService>(x=>x.BaseAddress=new Uri( configuration["Identity:apiUrl"]!))
-                .AddHttpMessageHandler<HttpClientAuthorizationDelegatingHandler>() ;
+        services.AddHttpClient<UserService>(x => x.BaseAddress = new Uri(configuration["Identity:apiUrl"]!))
+                .AddHttpMessageHandler<HttpClientAuthorizationDelegatingHandler>();
 
         return services;
     }
