@@ -1,10 +1,8 @@
 ﻿
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 using Service.Common;
 using System.Text;
-using System.Threading.RateLimiting;
 using Web.Bff.shopping.HttpAggregator.Services;
 
 internal static class Extensions
@@ -18,7 +16,6 @@ internal static class Extensions
         return services;
     }
 
-    //make generic and move to common 
     public static IServiceCollection AddUrlGroupHealthChecks(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddHealthChecks()
@@ -29,27 +26,6 @@ internal static class Extensions
         return services;
     }
 
-    //make generic with configration  and move to common (SharedKernal)
-    public static IServiceCollection AddRateLinitingIpAddress(this IServiceCollection services)
-    {
-        services.AddRateLimiter(options =>
-        {
-            options.RejectionStatusCode = 429;
-            options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
-            {
-
-                return RateLimitPartition.GetFixedWindowLimiter(
-                        partitionKey: context.Connection.RemoteIpAddress?.ToString(),
-                        factory: _ => new FixedWindowRateLimiterOptions
-                        {
-                            PermitLimit = 2,
-                            Window = TimeSpan.FromSeconds(10)
-                        })!;
-            });
-        });
-
-        return services;
-    }
 
     public static IServiceCollection AddGrpcServices(this IServiceCollection services)
     {
@@ -59,24 +35,6 @@ internal static class Extensions
 
     //make generic and move to common 
 
-    public static IServiceCollection AddAuthinticationOption(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-.AddJwtBearer(Options =>
-{
-    Options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration["Jwt:SecretKey"])),
-        ValidateIssuer = true,
-        ValidateLifetime = true,
-        ValidIssuer = configuration["Jwt:Issuer"], //source to validate my token 
-        ValidAudience = configuration["Jwt:Audience"], // me 
-    };
-});
-
-        return services;
-    }
     public static IServiceCollection AddHttpClient(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddHttpClient<UserService>(x => x.BaseAddress = new Uri(configuration["Identity:apiUrl"]!))

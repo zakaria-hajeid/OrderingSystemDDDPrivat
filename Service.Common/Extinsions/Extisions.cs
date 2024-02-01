@@ -11,6 +11,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Routing;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Service.Common.Extinsions
 {
@@ -38,7 +43,7 @@ namespace Service.Common.Extinsions
 
         {
             services.AddScoped<IEventBus, EventBusHandler>();
-            
+
             if (withConsumer)
             {
                 AddEventBusWithConsumer(services, configuration, queeWithConsumer);
@@ -185,6 +190,60 @@ namespace Service.Common.Extinsions
                         name: "rabbitmq");*/
 
 
+        }
+        public static IServiceCollection AddRateLinitingIpAddress(this IServiceCollection services)
+        {
+            services.AddRateLimiter(options =>
+            {
+                options.RejectionStatusCode = 429;
+                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+                {
+
+                    return RateLimitPartition.GetFixedWindowLimiter(
+                            partitionKey: context.Connection.RemoteIpAddress?.ToString(),
+                            factory: _ => new FixedWindowRateLimiterOptions
+                            {
+                                PermitLimit = 2,
+                                Window = TimeSpan.FromSeconds(10)
+                            })!;
+                });
+            });
+
+            return services;
+        }
+        public static IServiceCollection AddAuthinticationOption(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(Options =>
+    {
+        Options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration["Jwt:SecretKey"]!)),
+            ValidateIssuer = true,
+            ValidateLifetime = true,
+            ValidIssuer = configuration["Jwt:Issuer"], //source to validate my token 
+            ValidAudience = configuration["Jwt:Audience"], // me 
+        };
+    });
+
+            return services;
+        }
+        public static IServiceCollection AddHttpClientWithMessageHandler<TClient, MHandlers>(this IServiceCollection services, TClient client,  List<MHandlers>? mHandlers, IConfiguration configuration) where MHandlers : DelegatingHandler
+            where
+            TClient : class
+        {
+
+            //var httpClient = services.AddHttpClient<(TClient)>(x => x.BaseAddress = new Uri(configuration["Identity:apiUrl"]!));
+            //if (mHandlers != null && mHandlers.Any())
+            //{
+            //    mHandlers.ForEach(handlers =>
+            //    {
+            //       httpClient.AddHttpMessageHandler<MHandlers>();
+            //    });
+            //}
+
+            return services;
         }
 
         #endregion

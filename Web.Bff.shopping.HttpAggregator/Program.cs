@@ -18,7 +18,6 @@ builder.Services.AddScoped<HttpClientAuthorizationDelegatingHandler>();
 builder.Services.AddSwaggerGen();
 builder.Services.AddUrlGroupHealthChecks(builder.Configuration);
 
-//Move to common service 
 builder.Services.AddRateLinitingIpAddress();
 builder.Services.AddAuthinticationOption(builder.Configuration);
 
