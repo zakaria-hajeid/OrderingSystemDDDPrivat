@@ -29,7 +29,6 @@ internal static class Extensions
 
     public static IServiceCollection AddGrpcServices(this IServiceCollection services)
     {
-
         return services;
     }
 

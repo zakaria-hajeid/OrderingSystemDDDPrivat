@@ -229,22 +229,7 @@ namespace Service.Common.Extinsions
 
             return services;
         }
-        public static IServiceCollection AddHttpClientWithMessageHandler<TClient, MHandlers>(this IServiceCollection services, TClient client,  List<MHandlers>? mHandlers, IConfiguration configuration) where MHandlers : DelegatingHandler
-            where
-            TClient : class
-        {
-
-            //var httpClient = services.AddHttpClient<(TClient)>(x => x.BaseAddress = new Uri(configuration["Identity:apiUrl"]!));
-            //if (mHandlers != null && mHandlers.Any())
-            //{
-            //    mHandlers.ForEach(handlers =>
-            //    {
-            //       httpClient.AddHttpMessageHandler<MHandlers>();
-            //    });
-            //}
-
-            return services;
-        }
+      
 
         #endregion
     }
