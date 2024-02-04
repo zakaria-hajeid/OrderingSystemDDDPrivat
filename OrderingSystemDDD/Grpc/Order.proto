@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option csharp_namespace = "GrpcOrder";
+package OrderingSystemDDD;
+
+service OrderRpc {
+	rpc UpdateOrder(UpdateOrderRequest) returns (UpdateOrderRequestResponse) {}
+}
+message UpdateOrderRequest {
+	string orderId = 1;
+	repeated UpdateItemResponse items = 2;
+}
+message UpdateOrderRequestResponse {
+	string orderId = 1;
+	repeated UpdateItemResponse items = 2;
+}
+
+message UpdateItemResponse {
+	string id = 1;
+	string productname = 3;
+	double unitprice = 4;
+}

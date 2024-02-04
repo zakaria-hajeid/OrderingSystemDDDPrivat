@@ -13,6 +13,7 @@ using Quartz.Impl;
 using Quartz;
 using Service.Common.Extinsions;
 using Ordering.Infrastructure.BackGroundJobs;
+using GrpcOrder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +26,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.AddServiceDefaults();
-
+builder.Services.AddGrpc(options =>
+{
+    options.EnableDetailedErrors = true;
+});
 var app = builder.Build();
 app.AddOrderEndPoints();
 
@@ -52,6 +56,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.MapGrpcService<OrderService>();
 
 app.MapHealthChecks("/hc", new HealthCheckOptions()
 {

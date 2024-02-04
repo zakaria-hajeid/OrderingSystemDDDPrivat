@@ -10,6 +10,12 @@
     <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="7.1.0" />
     <PackageReference Include="FluentValidation" Version="11.7.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.7.1" />
+    <PackageReference Include="Google.Protobuf" Version="3.26.0-rc1" />
+    <PackageReference Include="Grpc.AspNetCore.Server" Version="2.60.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.61.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Mapster" Version="7.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.0" />
@@ -22,7 +28,9 @@
     <PackageReference Include="Polly.Extensions" Version="8.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
-
+	<ItemGroup>
+		<Protobuf Include="Grpc\Order.proto" GrpcServices="Server"  />
+	</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Ordering.Application\Ordering.Application.csproj" />
     <ProjectReference Include="..\External\Ordering.Infrastructure\Ordering.Infrastructure.csproj" />

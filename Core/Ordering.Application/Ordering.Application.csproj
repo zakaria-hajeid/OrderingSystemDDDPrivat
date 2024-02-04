@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Folder Include="Buyer\DomainEventHandler\" />
+    <Folder Include="Grpc\" />
     <Folder Include="Order\Commands\" />
     <Folder Include="Order\Queries\" />
   </ItemGroup>

@@ -1,4 +1,6 @@
 using Asp.Versioning;
+using GrpcOrder;
+using Microsoft.Extensions.Options;
 using Service.Common;
 using Service.Common.Extinsions;
 using Web.Bff.shopping.HttpAggregator.Services;
@@ -26,6 +28,13 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient(builder.Configuration);
 
 builder.Services.AddReverseProxy(builder.Configuration);
+builder.Services.AddScoped<OrderGrpcService>();
+builder.Services.AddGrpcClient<OrderRpc.OrderRpcClient>((services, options) =>
+{
+    options.Address = new Uri("https://localhost:7264/");
+});
+
+
 //coustem  trnasform
 /*builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
     .AddTransforms ( async transform =>

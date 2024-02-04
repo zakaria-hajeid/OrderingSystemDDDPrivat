@@ -10,12 +10,23 @@
     <PackageReference Include="Asp.Versioning.Http" Version="7.0.0" />
     <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="7.0.0" />
     <PackageReference Include="AspNetCore.HealthChecks.Uris" Version="7.0.0" />
+    <PackageReference Include="Google.Protobuf" Version="3.25.2" />
+    <PackageReference Include="Grpc.AspNetCore.Server.ClientFactory" Version="2.60.0" />
+    <PackageReference Include="Grpc.Core" Version="2.46.6" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.60.0" />
+    <PackageReference Include="Grpc.Net.ClientFactory" Version="2.60.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.61.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     <PackageReference Include="Yarp.ReverseProxy" Version="2.1.0" />
   </ItemGroup>
-
+	<ItemGroup>
+		<Protobuf Include="..\OrderingSystemDDD\Grpc\Order.proto" GrpcServices="Client" />
+	</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Service.Common\Service.Common.csproj" />
   </ItemGroup>

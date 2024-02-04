@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
+using Web.Bff.shopping.HttpAggregator.Services;
 
 namespace Web.Bff.shopping.HttpAggregator.Controllers
 {
@@ -11,9 +12,10 @@ namespace Web.Bff.shopping.HttpAggregator.Controllers
 
     public class AggregatorRequestController : ControllerBase
     {
-        public AggregatorRequestController()
+        private readonly OrderGrpcService orderGrpcService;
+        public AggregatorRequestController(OrderGrpcService orderGrpcService)
         {
-
+            this.orderGrpcService = orderGrpcService;
         }
         [HttpPost("Order")]
         [MapToApiVersion(1)]
@@ -25,6 +27,13 @@ namespace Web.Bff.shopping.HttpAggregator.Controllers
         [MapToApiVersion(2)]
         public async Task<IActionResult> OrderV2()
         {
+            return Ok();
+        }
+        [HttpPost("UpdateOrder")]
+        public async Task<IActionResult> UpdateOrder()
+        {
+            this.orderGrpcService.UpdateAsync(null);
+
             return Ok();
         }
     }
