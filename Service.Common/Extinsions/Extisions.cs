@@ -23,9 +23,14 @@ namespace Service.Common.Extinsions
     {
 
         #region Public usage
+
         public static IServiceCollection AddSharingDbContexts(this IServiceCollection services, IConfiguration configuration, string assymblyName, string connectionStringSectionName)
 
         {
+            /// <summary>
+            // هون سجلتها عندي مشان الكونتيكست هاد ينزل التيبل عندي  لما اعمل مايجريشن باالسيستم واقدر انجيكت هاد الكونتيكست باللايبراري الخارجي 
+            // بقدر ما استخمها ولكن لازم يكون التيبل موجود عندي بالسيستم ممن قبل واستخدم الفاكتور داخل هذيك اللايبراري مشان اممرلها الكونيكشن سترينج اللي بهاذ الابليكشين اللي عندي
+            /// </summary>
             services.AddDbContext<IntegrationEventLogContext>(options =>
             {
                 var connectionString = configuration.GetRequiredConnectionString(connectionStringSectionName);
@@ -229,7 +234,7 @@ namespace Service.Common.Extinsions
 
             return services;
         }
-      
+
 
         #endregion
     }

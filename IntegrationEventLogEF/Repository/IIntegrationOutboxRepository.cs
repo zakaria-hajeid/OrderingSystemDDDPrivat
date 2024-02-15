@@ -8,6 +8,9 @@
         public IIntegrationOutboxRepository(DbConnection dbConnection)
         {
             _dbConnection = dbConnection ?? throw new ArgumentNullException(nameof(dbConnection));
+            /// <summary>
+            ///بتقدر تعملو انجيكت عادي فقط بدون كل هاذ الفاكتوري لانو البروجيت الرئيسي عاملو انجيكت ومعطي الكونيكشن سترنج عادي مشان يضيف التيبل عندو بالداتا بيس نفسها واساسا هاي كلاس لايبراري الها ريفارنس من البروجيكت الاساسي
+            /// </summary>
             _integrationEventLogContext = new IntegrationEventLogContext(
          new DbContextOptionsBuilder<IntegrationEventLogContext>()
              .UseSqlServer(_dbConnection)
