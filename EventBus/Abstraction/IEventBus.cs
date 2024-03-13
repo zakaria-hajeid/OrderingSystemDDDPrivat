@@ -10,7 +10,8 @@ namespace EventBus.Abstraction
 {
     public interface IEventBus
     {
-        Task Publish(IntegrationEvent @event);
+        Task Publish<T>(T @event) where T: IntegrationEvent;
+
 
     }
 }

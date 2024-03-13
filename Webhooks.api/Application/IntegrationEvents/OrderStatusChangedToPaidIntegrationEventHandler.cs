@@ -1,5 +1,6 @@
 ﻿using EventBus.Abstraction;
 using EventBus.Events;
+using EventBus.IntegrationEvents;
 using IntegrationEventLogEF.DbContexts;
 using MassTransit;
 using Newtonsoft.Json;
@@ -7,7 +8,7 @@ using Webhooks.api.Persistence.Model;
 
 namespace Webhooks.api.Application.IntegrationEvents;
 
-public class OrderStatusChangedToPaidIntegrationEventHandler : IIntegrationEventHandler<IntegrationEvent>
+public class OrderStatusChangedToPaidIntegrationEventHandler : IIntegrationEventHandler<OrderStatusChangedToPaidIntegrationEvent>
 
 {
     private readonly IWebhooksRetriever _retriever;
@@ -19,14 +20,17 @@ public class OrderStatusChangedToPaidIntegrationEventHandler : IIntegrationEvent
         _sender = sender;
         _logger = logger;
     }
-   
-   
-    public async Task Consume(ConsumeContext<IntegrationEvent> context)
+
+
+    public async Task Consume(ConsumeContext<OrderStatusChangedToPaidIntegrationEvent> context)
     {
-        OrderStatusChangedToPaidIntegrationEvent @event = JsonConvert.DeserializeObject<OrderStatusChangedToPaidIntegrationEvent>(context.Message.eventContent);
+
+        OrderStatusChangedToPaidIntegrationEvent @event = context.Message;
         var subscriptions = await _retriever.GetSubscriptionsOfType(WebhookType.OrderPaid);
         _logger.LogInformation("Received OrderStatusChangedToShippedIntegrationEvent and got {SubscriptionsCount} subscriptions to process", subscriptions.Count());
         var whook = new WebhookData(WebhookType.OrderPaid, @event);
         await _sender.SendAll(subscriptions, whook);
     }
 }
+
+

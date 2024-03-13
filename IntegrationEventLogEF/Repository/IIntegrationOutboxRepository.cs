@@ -1,4 +1,6 @@
-﻿namespace IntegrationEventLogEF.Repository
+﻿using EventBus;
+
+namespace IntegrationEventLogEF.Repository
 {
     public sealed class IIntegrationOutboxRepository
     {
@@ -23,9 +25,8 @@
             var result = await _integrationEventLogContext.IntegrationEventLogs
                                .Where(e => e.TransactionId == tid && e.State == EventStateEnum.NotPublished)
                                .ToListAsync();
-
-          
-            List<Type> _eventTypes = Assembly.Load(result.Select(X=>X.eventAssymblyName).FirstOrDefault()!) //call the application service 
+           
+            List<Type> _eventTypes = AssemblyReference.assembly //call the application service 
                                              .GetTypes()
                                              .Where(t => typeof(IntegrationEvent).IsAssignableFrom(t)
                                                          && !t.IsInterface && !t.IsAbstract)
@@ -89,7 +90,7 @@
                 return Enumerable.Empty<IntegrationEventOutbox>();
             }
 
-            List<Type> _eventTypes = Assembly.Load(result.Select(X => X.eventAssymblyName).FirstOrDefault()!) //call the application service 
+            List<Type> _eventTypes = AssemblyReference.assembly 
                                              .GetTypes()
                                              .Where(t => typeof(IntegrationEvent).IsAssignableFrom(t)
                                                          && !t.IsInterface && !t.IsAbstract)

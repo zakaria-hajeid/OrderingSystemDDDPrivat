@@ -4,27 +4,26 @@ using System.Text.Json.Serialization;
 
 namespace EventBus.Events;
 
-public record IntegrationEvent
+public abstract record IntegrationEvent
 {
     public IntegrationEvent()
     {
         Id = Guid.NewGuid();
         CreationDate = DateTime.UtcNow;
+        setEventType();
     }
     public IntegrationEvent(Guid id, DateTime createDate)
     {
         Id = id;
         CreationDate = createDate;
     }
-    public string  eventContent { get; set; }
-    public Guid Id { get; private init; }
+    public Guid Id { get;  init; }
 
-    public DateTime CreationDate { get; private init; }
+    public DateTime CreationDate { get;  init; }
+    protected int EventType { get; set; }
 
-    private string _assymblyName;
-
-    public string assymblyName { get => _assymblyName; set => _assymblyName = value; }
-    
+    public int eventType => EventType;
+    public abstract void setEventType();
 }
 
 

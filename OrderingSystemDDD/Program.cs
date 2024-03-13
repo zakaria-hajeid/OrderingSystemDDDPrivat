@@ -14,6 +14,7 @@ using Quartz;
 using Service.Common.Extinsions;
 using Ordering.Infrastructure.BackGroundJobs;
 using GrpcOrder;
+using Ordering.Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +34,7 @@ builder.Services.AddGrpc(options =>
 var app = builder.Build();
 app.AddOrderEndPoints();
 
+
 using (var scope = app.Services.CreateScope())
 {
     
@@ -46,6 +48,8 @@ using (var scope = app.Services.CreateScope())
     await new OrderingContextSeed().SeedAsync(context, logger);
     var integEventContext = scope.ServiceProvider.GetRequiredService<IntegrationEventLogContext>();
     await integEventContext.Database.MigrateAsync();
+
+
 }
 
 // Configure the HTTP request pip  eline.

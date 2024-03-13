@@ -1,6 +1,7 @@
-﻿using MediatR;
+﻿using EventBus;
+using EventBus.IntegrationEvents;
+using MediatR;
 using Microsoft.Extensions.Logging;
-using Ordering.Application.Order.IntegrationEvents;
 using Ordering.Application.Services;
 using Ordering.Domain.AggregatesModel.BuyerAggregate;
 using Ordering.Domain.Events;
@@ -39,7 +40,6 @@ internal sealed class ValidateOrAddBuyerAggregateWhenOrderStartedDomainEventHand
         //publish domain event and save changes
         await _buyerRepository.UnitOfWork.PublishEventAsyncAsync(cancellationToken);
         var integrationEvent = new OrderStatusChangedToSubmittedIntegrationEvent(domainEvent.order.Id, domainEvent.order.OrderStatus.Name, byerCreate.Value.Name);
-        integrationEvent.assymblyName= Assembly.GetExecutingAssembly().FullName!;
         await _orderingIntegrationEventService.SaveEventAsync(integrationEvent);
         // OrderingApiTrace.LogOrderBuyerAndPaymentValidatedOrUpdated(_logger, buyerUpdated.Id, domainEvent.Order.Id);
     }

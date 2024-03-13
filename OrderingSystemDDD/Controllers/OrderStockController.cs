@@ -1,6 +1,10 @@
 using EventBus.Abstraction;
+using EventBus.IntegrationEvents;
 using Microsoft.AspNetCore.Mvc;
-using Ordering.Application.Order.IntegrationEvents;
+using Microsoft.EntityFrameworkCore;
+using Ordering.Application.Services;
+using Ordering.Domain.Prematives;
+using Ordering.Persistence;
 using System.Text.Json;
 
 namespace OrderingSystemDDD.Controllers
@@ -16,11 +20,19 @@ namespace OrderingSystemDDD.Controllers
 
         private readonly ILogger<OrderStockController> _logger;
         private readonly IEventBus _eventBus;
+        private readonly IOrderingIntegrationEventService _orderingIntegrationEventService;
+        private readonly ApplicationDbContext _applicationDbContext;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public OrderStockController(ILogger<OrderStockController> logger, IEventBus eventBus)
+
+
+        public OrderStockController(ILogger<OrderStockController> logger, IEventBus eventBus, IOrderingIntegrationEventService orderingIntegrationEventService, ApplicationDbContext applicationDbContext, IUnitOfWork unitOfWork)
         {
             _logger = logger;
             _eventBus = eventBus;
+            _orderingIntegrationEventService = orderingIntegrationEventService;
+            _applicationDbContext = applicationDbContext;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
@@ -44,21 +56,48 @@ namespace OrderingSystemDDD.Controllers
             SetOrderStockInput payload = JsonSerializer.Deserialize<SetOrderStockInput>(input.Payload)!;//solve
             return Ok();
         }
-        [HttpPost("MockOrderPaidIntegrationEvent")]
+       [HttpPost("MockOrderPaidSaveIntegrationEvent")]
         // mock Reciving end point when ordered paid to set the stok item in repo 
         //From webHook
-        public async Task<IActionResult> MockOrderPaidIntegrationEvent()
+        public async Task<IActionResult> MockOrderSaveIntegrationEvent()
         {
 
-            List<Ordering.Application.Order.IntegrationEvents.OrderStockItem> OrderStockItem = new List<Ordering.Application.Order.IntegrationEvents.OrderStockItem> ();
-            OrderStockItem.Add(new Ordering.Application.Order.IntegrationEvents.OrderStockItem(1, 1));
+            var integrationEvent = new OrderStatusChangedToSubmittedIntegrationEvent(1, "sumbuted", "zakaria");
 
-            OrderStatusChangedToPaidIntegrationEvent orderStatusChangedToPaidIntegrationEvent =
-                new OrderStatusChangedToPaidIntegrationEvent(431, 381, OrderStockItem);
-            await _eventBus.Publish(orderStatusChangedToPaidIntegrationEvent);
+            try
+            {
+                var strategy = _unitOfWork.CreateExecutionStrategy();
+
+                await strategy.ExecuteAsync(async () =>
+                {
+                    await using var transaction = await _applicationDbContext.BeginTransactionAsync();
+
+                    await _orderingIntegrationEventService.SaveEventAsync(integrationEvent);
+                    await _applicationDbContext.CommitTransactionAsync(transaction);
+                });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
             return Ok();
         }
+        [HttpPost("MockOrderPaideRetriveIntegrationEvent")]
+        // mock Reciving end point when ordered paid to set the stok item in repo 
+        //From webHook
+        public async Task<IActionResult> MockOrderPaideRetriveIntegrationEvent(Guid transactionId)
+        {
 
+            try
+            {
+                await _orderingIntegrationEventService.PublishEventsThroughEventBusAsync(transactionId); ;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return Ok();
+        }
     }
 
 

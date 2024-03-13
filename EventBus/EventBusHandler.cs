@@ -15,13 +15,10 @@ namespace EventBus
             _publishEndpoint = publishEndpoint;
         }
 
-        public async Task Publish(IntegrationEvent @event )
+
+        public async Task Publish<T>(T @event) where T : IntegrationEvent
         {
-            @event.eventContent = JsonConvert.SerializeObject(@event);
-
             await _publishEndpoint.Publish(@event);
-
-
         }
     }
 }

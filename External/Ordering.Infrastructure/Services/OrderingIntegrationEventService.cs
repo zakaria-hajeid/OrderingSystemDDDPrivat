@@ -1,14 +1,19 @@
-﻿using EventBus.Abstraction;
+﻿using EventBus;
+using EventBus.Abstraction;
 using EventBus.Events;
+using EventBus.Utility;
 using IntegrationEventLogEF.Entities;
 using IntegrationEventLogEF.Enums;
 using IntegrationEventLogEF.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Ordering.Application;
 using Ordering.Application.Services;
 using Ordering.Domain.Prematives;
 using Ordering.Persistence;
 using System.Data.Common;
+using System.Reflection;
+using System.Text.Json;
 
 namespace Ordering.Infrastructure.Services;
 
@@ -60,14 +65,21 @@ public class OrderingIntegrationEventService : IOrderingIntegrationEventService
             try
             {
                 await _eventLogService.UpdateEventState(logEvt.EventId, EventStateEnum.InProgress);
-                await _eventBus.Publish(logEvt.IntegrationEvent);
+
+                dynamic? integrationEvent = retriveIntegrationEventByType(logEvt.EventType);
+                if (integrationEvent is null)
+                {
+                    throw new InvalidOperationException("Integration event is not found");
+                }
+                integrationEvent = logEvt.IntegrationEvent;
+                await _eventBus.Publish(integrationEvent);
                 await _eventLogService.UpdateEventState(logEvt.EventId, EventStateEnum.Published);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error publishing integration event: {IntegrationEventId}", logEvt.EventId);
 
-                await _eventLogService.UpdateEventState(logEvt.EventId, EventStateEnum.PublishedFailed);
+               await _eventLogService.UpdateEventState(logEvt.EventId, EventStateEnum.PublishedFailed);
             }
         }
     }
@@ -76,5 +88,11 @@ public class OrderingIntegrationEventService : IOrderingIntegrationEventService
         _logger.LogInformation("Enqueuing integration event {IntegrationEventId} to repository ({@IntegrationEvent})", evt.Id, evt);
 
         await _eventLogService.SaveEventAsync(evt, _orderingContext.GetCurrentTransaction());
+    }
+    private dynamic? retriveIntegrationEventByType(EventTypeNameEnum eventTypeNameEnum)
+    {
+        dynamic integrationEvent;
+        integrationEvent = IntegrationEventsLoockup.IntegrationEventsLoockUp.Where(x => x.Key == eventTypeNameEnum).First();
+        return integrationEvent;
     }
 }

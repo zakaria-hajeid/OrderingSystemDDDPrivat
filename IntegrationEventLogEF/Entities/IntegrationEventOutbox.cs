@@ -1,4 +1,5 @@
 ﻿
+using EventBus;
 using IntegrationEventLogEF.Enums;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel;
@@ -8,24 +9,24 @@ namespace IntegrationEventLogEF.Entities;
 public class IntegrationEventOutbox
 {
     private static readonly JsonSerializerOptions s_indentedOptions = new() { WriteIndented = true };
-    private static readonly JsonSerializerOptions s_caseInsensitiveOptions = new() { PropertyNameCaseInsensitive = true };
+    private static readonly JsonSerializerOptions s_caseInsensitiveOptions = new() { PropertyNameCaseInsensitive = false };
 
     public IntegrationEventOutbox() { }
     private IntegrationEventOutbox(IntegrationEvent @event, Guid transactionId)
     {
         EventId = @event.Id;
         CreationTime = @event.CreationDate;
-        EventTypeName = @event.GetType().FullName;
+        EventTypeName = @event.GetType().FullName!;
         Content = JsonSerializer.Serialize(@event, @event.GetType(), s_indentedOptions);
         State = EventStateEnum.NotPublished;
         TimesSent = 0;
         TransactionId = transactionId.ToString();
-        eventAssymblyName = @event.assymblyName;
+        EventType= (EventTypeNameEnum)@event.eventType;
     }
     public Guid EventId { get; private set; }
     public string EventTypeName { get; private set; }
     [NotMapped]
-    public string EventTypeShortName => EventTypeName.Split('.')?.Last();
+    public string EventTypeShortName => EventTypeName.Split('.')?.Last()!;
     [NotMapped]
     public IntegrationEvent IntegrationEvent { get; private set; }
     public EventStateEnum State { get; set; }
@@ -33,8 +34,7 @@ public class IntegrationEventOutbox
     public DateTime CreationTime { get; private set; }
     public string Content { get; private set; }
     public string TransactionId { get; private set; }
-    public string eventAssymblyName { get; private set; }
-
+    public EventTypeNameEnum EventType { get; private set; }
     public IntegrationEventOutbox DeserializeJsonContent(Type type)
     {
         IntegrationEvent = JsonSerializer.Deserialize(Content, type, s_caseInsensitiveOptions) as IntegrationEvent;
