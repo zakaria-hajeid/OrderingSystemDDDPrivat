@@ -7,7 +7,7 @@ using Ordering.Domain.Sahred;
 namespace Ordering.Domain.AggregatesModel.OrderAggregate;
 public class Order : AggregateRoot
 {
-    private readonly HashSet<OrderItem> _orderItems;
+    private readonly List<OrderItem> _orderItems;
     public OrderStatus OrderStatus { get; private set; }
     public Address Address { get; private set; }
     public IReadOnlyCollection<OrderItem> OrderItems => _orderItems;
