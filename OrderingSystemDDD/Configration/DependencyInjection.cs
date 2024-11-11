@@ -10,7 +10,6 @@ namespace OrderingSystemDDD.Configration
                                                                 (IsAssignableToType<IServiceInstaller>).Select(Activator.CreateInstance).
                                                                 Cast<IServiceInstaller>();
 
-
             foreach (IServiceInstaller serviceInstaller in serviceInstallers)
             {
                 serviceInstaller.Instal(service, configuration);

@@ -63,6 +63,10 @@ class OrderEntityTypeConfiguration : IEntityTypeConfiguration<Order>
         //Set as field (New since EF 1.1) to access the OrderItem collection property through its field
         navigation.SetPropertyAccessMode(PropertyAccessMode.Field);
 
+        //or 
+        /* var navigation = builder.Metadata.FindNavigation(nameof(Order.OrderItems));
+         navigation.SetPropertyAccessMode(PropertyAccessMode.Property);*/
+
         orderConfiguration.HasOne<PaymentMethod>()
             .WithMany()
             // .HasForeignKey("PaymentMethodId")

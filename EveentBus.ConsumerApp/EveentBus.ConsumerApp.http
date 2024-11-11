@@ -1,0 +1,6 @@
+@EveentBus.ConsumerApp_HostAddress = http://localhost:5190
+
+GET {{EveentBus.ConsumerApp_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
