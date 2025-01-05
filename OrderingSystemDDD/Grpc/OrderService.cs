@@ -2,13 +2,13 @@
 
 namespace GrpcOrder
 {
-    public class OrderService: OrderRpc.OrderRpcBase
+    public class OrderService/*: OrderRpc.OrderRpcBase*/
     {
         public OrderService()
         {
                 
         }
-        public override async Task<UpdateOrderRequestResponse> UpdateOrder(UpdateOrderRequest request, ServerCallContext context)
+        public  async Task<UpdateOrderRequestResponse> s(UpdateOrderRequest request, ServerCallContext context)
         {
 
            /* var customerBasket = MapToCustomerBasket(request);

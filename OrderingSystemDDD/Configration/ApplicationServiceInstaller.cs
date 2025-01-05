@@ -5,6 +5,8 @@ using FluentValidation;
 using Service.Common.Extinsions;
 using Microsoft.AspNetCore.Hosting;
 using System.Reflection;
+using EventBus.EventHandlerModel;
+using Ordering.Application.HostedServices;
 
 namespace OrderingSystemDDD.Configration
 {
@@ -28,6 +30,10 @@ namespace OrderingSystemDDD.Configration
             services.AddValidatorsFromAssembly(AssemblyReference.assembly);
 
             services.AddEventBusSharedServices(configuration);
+            services.Configure<RabbitMqOptions>(options => configuration.GetSection(nameof(RabbitMqOptions)).Bind(options));
+            services.AddHostedService<RabbitMqConsumerHostedService>();
+
+
         }
     }
 }

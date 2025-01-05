@@ -1,6 +1,6 @@
 ﻿using EventBus.Events;
 namespace EventBus.IntegrationEvents;
-public sealed record OrderStatusChangedToSubmittedIntegrationEvent : IntegrationEvent
+public sealed record OrderStatusChangedToSubmittedIntegrationEvent : RabbitMqEvents
 
 {
     public OrderStatusChangedToSubmittedIntegrationEvent()
@@ -16,6 +16,8 @@ public sealed record OrderStatusChangedToSubmittedIntegrationEvent : Integration
     public int OrderId { get; init; }
     public string OrderStatus { get; init; }
     public string BuyerName { get; init; }
+
+    public override string QueueName => "Order";
 
     public override void setEventType()
     {

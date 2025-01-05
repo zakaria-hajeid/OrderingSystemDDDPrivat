@@ -17,13 +17,12 @@ public abstract record IntegrationEvent
         Id = id;
         CreationDate = createDate;
     }
-    public Guid Id { get;  init; }
-
-    public DateTime CreationDate { get;  init; }
+    public Guid Id { get; init; }
     protected int EventType { get; set; }
 
+    public DateTime CreationDate { get; init; }
     public int eventType => EventType;
     public abstract void setEventType();
-}
 
+}
 

@@ -1,7 +1,7 @@
 ﻿using EventBus.Events;
 
 namespace EventBus.IntegrationEvents;
-public sealed record OrderStatusChangedToPaidIntegrationEvent : IntegrationEvent
+public sealed record OrderStatusChangedToPaidIntegrationEvent : RabbitMqEvents
 {
     public OrderStatusChangedToPaidIntegrationEvent()
     {
@@ -10,6 +10,9 @@ public sealed record OrderStatusChangedToPaidIntegrationEvent : IntegrationEvent
     public int OrderId { get; private set; }
     public int BuyerId { get; private set; }
     public List<OrderStockItem> orderStockItems { get; set; } = new();
+
+    public override string QueueName => "Order";
+
     public override void setEventType()
     {
         EventType = (int)EventTypeNameEnum.OrderStatusChangedToPaidIntegrationEvent;

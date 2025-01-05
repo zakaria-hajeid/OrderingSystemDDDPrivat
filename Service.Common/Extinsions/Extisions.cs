@@ -16,6 +16,8 @@ using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using EventBus.EvenstHandlers;
+using EventBus.IntegrationEvents;
 
 namespace Service.Common.Extinsions
 {
@@ -234,6 +236,25 @@ namespace Service.Common.Extinsions
 
             return services;
         }
+
+        #region  Events Regestraions
+        public static IServiceCollection AddOrderStatusChangeToSubmittedHandlerEventExtensions(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddSingleton<IRabbitMqEventHandler<OrderStatusChangedToSubmittedIntegrationEvent>, OrderStatusChangeToSubmittedHandler>();
+            return services;
+        }
+        public static IServiceCollection AddRabbitMqConsumers(this IServiceCollection services)
+        {
+            services.AddSingleton(typeof(IRabbitMqConsumer<>), typeof(RabbitMqConsumer<>));
+            return services;
+        }
+        public static IServiceCollection AddRabbitMqPublishers(this IServiceCollection services)
+        {
+            services.AddSingleton(typeof(IRabbitMqPublisher<>), typeof(RabbitMqPublisher<>));
+            return services;
+        }
+
+        #endregion
 
 
         #endregion

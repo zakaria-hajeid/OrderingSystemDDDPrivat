@@ -32,7 +32,7 @@ namespace Web.Bff.shopping.HttpAggregator.Controllers
         [HttpPost("UpdateOrder")]
         public async Task<IActionResult> UpdateOrder()
         {
-            this.orderGrpcService.UpdateAsync(null);
+          //  this.orderGrpcService.UpdateAsync(null);
 
             return Ok();
         }

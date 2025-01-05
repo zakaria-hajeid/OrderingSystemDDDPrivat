@@ -23,16 +23,19 @@ namespace OrderingSystemDDD.Controllers
         private readonly IOrderingIntegrationEventService _orderingIntegrationEventService;
         private readonly ApplicationDbContext _applicationDbContext;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IRabbitMqPublisher<OrderStatusChangedToSubmittedIntegrationEvent> publisher;
 
 
 
-        public OrderStockController(ILogger<OrderStockController> logger, IEventBus eventBus, IOrderingIntegrationEventService orderingIntegrationEventService, ApplicationDbContext applicationDbContext, IUnitOfWork unitOfWork)
+
+        public OrderStockController(ILogger<OrderStockController> logger, IEventBus eventBus, IOrderingIntegrationEventService orderingIntegrationEventService, ApplicationDbContext applicationDbContext, IUnitOfWork unitOfWork, IRabbitMqPublisher<OrderStatusChangedToSubmittedIntegrationEvent> publisher)
         {
             _logger = logger;
             _eventBus = eventBus;
             _orderingIntegrationEventService = orderingIntegrationEventService;
             _applicationDbContext = applicationDbContext;
             _unitOfWork = unitOfWork;
+            this.publisher = publisher;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
@@ -63,6 +66,10 @@ namespace OrderingSystemDDD.Controllers
         {
 
             var integrationEvent = new OrderStatusChangedToSubmittedIntegrationEvent(1, "sumbuted", "zakaria");
+
+
+            //test publish 
+            publisher.Publish(integrationEvent);
 
             try
             {

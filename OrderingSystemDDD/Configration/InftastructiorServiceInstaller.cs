@@ -14,6 +14,7 @@ using Polly;
 using Polly.CircuitBreaker;
 using Polly.Retry;
 using Quartz;
+using Service.Common.Extinsions;
 using System.Data.Common;
 
 namespace OrderingSystemDDD.Configration
@@ -53,52 +54,57 @@ namespace OrderingSystemDDD.Configration
                 //configure.UseMicrosoftDependencyInjectionJobFactory(); is default 
             });
 
-    services.AddResiliencePipeline("Fault-Event-Publish",
-                pip =>
-                {
-                    pip.AddRetry(new RetryStrategyOptions
-                    {
-                        MaxRetryAttempts = 2,
-                        Delay = TimeSpan.Zero,
-                        ShouldHandle = new PredicateBuilder()
-                    .Handle<ApplicationException>(),
+            services.AddResiliencePipeline("Fault-Event-Publish",
+                        pip =>
+                        {
+                            pip.AddRetry(new RetryStrategyOptions
+                            {
+                                MaxRetryAttempts = 2,
+                                Delay = TimeSpan.Zero,
+                                ShouldHandle = new PredicateBuilder()
+                            .Handle<ApplicationException>(),
 
-                        OnRetry = r =>
-                          {
-                              Console.WriteLine(r.AttemptNumber);
-                              return ValueTask.CompletedTask;
+                                OnRetry = r =>
+                                  {
+                                      Console.WriteLine(r.AttemptNumber);
+                                      return ValueTask.CompletedTask;
 
-                          },
+                                  },
 
-                    }
+                            }
 
-                    );
+                            );
 
-                    pip.AddCircuitBreaker(new CircuitBreakerStrategyOptions
-                    {
-                        ShouldHandle = new PredicateBuilder()
-                     .Handle<ApplicationException>(),
-                        BreakDuration = TimeSpan.FromSeconds(30),
-                        MinimumThroughput = 3,
-                        OnOpened = r =>
-                          {
-                              Console.WriteLine(r.Outcome.Result);
-                              return ValueTask.CompletedTask;
+                            pip.AddCircuitBreaker(new CircuitBreakerStrategyOptions
+                            {
+                                ShouldHandle = new PredicateBuilder()
+                             .Handle<ApplicationException>(),
+                                BreakDuration = TimeSpan.FromSeconds(30),
+                                MinimumThroughput = 3,
+                                OnOpened = r =>
+                                  {
+                                      Console.WriteLine(r.Outcome.Result);
+                                      return ValueTask.CompletedTask;
 
-                          },
-                    });
-                    /*pip.AddFallback<object> (new FallbackStrategyOptions<object>
-                    {
-                        ShouldHandle = new PredicateBuilder()
-                    .Handle<ApplicationException>(),
-                        FallbackAction = r => Outcome.FromResultAsValueTask(new object())
-                    }); */
+                                  },
+                            });
+                            /*pip.AddFallback<object> (new FallbackStrategyOptions<object>
+                            {
+                                ShouldHandle = new PredicateBuilder()
+                            .Handle<ApplicationException>(),
+                                FallbackAction = r => Outcome.FromResultAsValueTask(new object())
+                            }); */
 
-                    pip.Build();
-                }
-                );
+                            pip.Build();
+                        }
+                        );
+
+            services.AddOrderStatusChangeToSubmittedHandlerEventExtensions(configuration);
+            services.AddRabbitMqConsumers();
+            services.AddRabbitMqPublishers();
+
+        }
+
+
+    }
 }
-
-
-    }
-    }
