@@ -1,9 +1,13 @@
 using EventBus.Abstraction;
+using EventBus.EventHandlerModel;
 using EventBus.Events;
 using IntegrationEventLogEF.DbContexts;
 using MassTransit;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Ordering.SignalrHub;
+using Ordering.SignalrHub.Extinsions;
+using Ordering.SignalrHub.HostedService;
 using Ordering.SignalrHub.Hubs;
 using Ordering.SignalrHub.IntegrationEventHandling.EventHandling;
 using Service.Common.Extinsions;
@@ -27,10 +31,21 @@ queueNameWithConsumers.Add("IntegrationEvent", new List<Action<IRabbitMqReceiveE
         endpoint.UseMessageRetry(x=>x.Interval(int.Parse(builder.Configuration["EventBusMessageBroker:RetryCount"]),int.Parse(builder.Configuration["EventBusMessageBroker:Interval"])));
     }
 });
-builder.Services.AddEventBusSharedServices(builder.Configuration,true,queueNameWithConsumers) ;
+builder.Services.AddEventBusSharedServices(builder.Configuration, true, queueNameWithConsumers);
 builder.Services.AddSignalR();
+//RabbitMqConfigration
+builder.Services.Configure<RabbitMqOptions>(options => builder.Configuration.GetSection(nameof(RabbitMqOptions)).Bind(options));
+builder.Services.AddHostedService<RabbitMqIniateConsumerHostedService>();
+builder.Services.AddRabbitMqConsumers();
+builder.Services.AddRabbitMqPublishers();
+builder.Services.AddRabbitMqConfigration();
+
+builder.Services.AddOrderStatusChangeToSubmittedHandlerEventExtensions();
+
+
 var app = builder.Build();
 app.MapHub<NotificationsHub>("/hub/notificationhub");
+
 
 
 

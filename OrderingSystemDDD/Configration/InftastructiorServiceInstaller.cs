@@ -99,9 +99,7 @@ namespace OrderingSystemDDD.Configration
                         }
                         );
 
-            services.AddOrderStatusChangeToSubmittedHandlerEventExtensions(configuration);
-            services.AddRabbitMqConsumers();
-            services.AddRabbitMqPublishers();
+      
 
         }
 

@@ -1,4 +1,5 @@
 using EventBus.Abstraction;
+using EventBus.Abstraction.RabbitMq;
 using EventBus.IntegrationEvents;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

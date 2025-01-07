@@ -1,23 +1,23 @@
 ﻿using EventBus;
 using EventBus.Abstraction;
+using EventBus.Abstraction.RabbitMq;
+using EventBus.IntegrationEvents;
+using EventBus.RabbitMqImplementation;
 using IntegrationEventLogEF.DbContexts;
 using MassTransit;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.AspNetCore.Routing;
-using System.Linq;
-using Microsoft.AspNetCore.Http;
-using System.Threading.RateLimiting;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using EventBus.EvenstHandlers;
-using EventBus.IntegrationEvents;
+using System.Threading.RateLimiting;
 
 namespace Service.Common.Extinsions
 {
@@ -238,11 +238,7 @@ namespace Service.Common.Extinsions
         }
 
         #region  Events Regestraions
-        public static IServiceCollection AddOrderStatusChangeToSubmittedHandlerEventExtensions(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddSingleton<IRabbitMqEventHandler<OrderStatusChangedToSubmittedIntegrationEvent>, OrderStatusChangeToSubmittedHandler>();
-            return services;
-        }
+      
         public static IServiceCollection AddRabbitMqConsumers(this IServiceCollection services)
         {
             services.AddSingleton(typeof(IRabbitMqConsumer<>), typeof(RabbitMqConsumer<>));
@@ -253,7 +249,11 @@ namespace Service.Common.Extinsions
             services.AddSingleton(typeof(IRabbitMqPublisher<>), typeof(RabbitMqPublisher<>));
             return services;
         }
-
+        public static IServiceCollection AddRabbitMqConfigration(this IServiceCollection services)
+        {
+            services.AddSingleton<IRabbitMqConfigrationService, RabbitMqConfigrationService>();
+            return services;
+        }
         #endregion
 
 

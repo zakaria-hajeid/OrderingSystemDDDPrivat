@@ -1,6 +1,6 @@
 ﻿using EventBus.Events;
 
-namespace EventBus.Abstraction
+namespace EventBus.Abstraction.RabbitMq
 {
     public interface IRabbitMqConsumer<TMessage> where TMessage : RabbitMqEvents
     {

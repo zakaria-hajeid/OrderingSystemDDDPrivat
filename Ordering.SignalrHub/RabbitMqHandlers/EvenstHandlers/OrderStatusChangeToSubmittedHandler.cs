@@ -1,13 +1,9 @@
-﻿using EventBus.Abstraction;
+﻿using EventBus.Abstraction.RabbitMq;
 using EventBus.IntegrationEvents;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace EventBus.EvenstHandlers
+namespace Ordering.SignalrHub.RabbitMqHandlers.EvenstHandlers
 {
+    // todo move to handler microservices 
     public class OrderStatusChangeToSubmittedHandler : IRabbitMqEventHandler<OrderStatusChangedToSubmittedIntegrationEvent>
     {
         public OrderStatusChangeToSubmittedHandler()

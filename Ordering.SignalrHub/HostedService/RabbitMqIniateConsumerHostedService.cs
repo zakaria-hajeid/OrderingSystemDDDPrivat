@@ -1,18 +1,13 @@
-﻿using EventBus.Abstraction;
-using EventBus.Events;
+﻿using EventBus.Abstraction.RabbitMq;
 using EventBus.IntegrationEvents;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System.Reflection;
-using static MassTransit.MessageHeaders;
 
-namespace Ordering.Application.HostedServices
+namespace Ordering.SignalrHub.HostedService
 {
-    public class RabbitMqConsumerHostedService : BackgroundService
+    public class RabbitMqIniateConsumerHostedService : BackgroundService
     {
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public RabbitMqConsumerHostedService(IServiceScopeFactory serviceScopeFactory)
+        public RabbitMqIniateConsumerHostedService(IServiceScopeFactory serviceScopeFactory)
         {
             _serviceScopeFactory = serviceScopeFactory;
         }
@@ -25,21 +20,20 @@ namespace Ordering.Application.HostedServices
 
         private Task AddAllConsumers(params Type[] messageAssemblyMarkerTypes)
         {
-            var assembliesToScan = messageAssemblyMarkerTypes.Select((Type t) => t.GetTypeInfo().Assembly);
+            /* var assembliesToScan = messageAssemblyMarkerTypes.Select((Type t) => t.GetTypeInfo().Assembly);
 
-            var messageTypes = assembliesToScan
-               .SelectMany(a => a.GetExportedTypes())
-               .Where(type => !type.IsAbstract && typeof(RabbitMqEvents).IsAssignableFrom(type));
+             var messageTypes = assembliesToScan
+                .SelectMany(a => a.GetExportedTypes())
+                .Where(type => !type.IsAbstract && typeof(RabbitMqEvents).IsAssignableFrom(type));*/
 
             IServiceScope scope = _serviceScopeFactory.CreateScope();
 
-            foreach (var type in messageTypes)
+            foreach (var type in messageAssemblyMarkerTypes)
             {
                 var consumer = scope.ServiceProvider.GetRequiredService(typeof(IRabbitMqConsumer<>).MakeGenericType(type));
                 consumer.GetType().GetMethod("Start")?.Invoke(consumer, new object[1] { new CancellationToken() });
             }
             return Task.CompletedTask;
-
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
