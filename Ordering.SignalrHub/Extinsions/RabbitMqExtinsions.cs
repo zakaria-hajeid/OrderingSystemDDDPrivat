@@ -14,6 +14,7 @@ namespace Ordering.SignalrHub.Extinsions
         public static IServiceCollection AddOrderStatusChangeToSubmittedHandlerEventExtensions(this IServiceCollection services)
         {
             services.AddSingleton<IRabbitMqEventHandler<OrderStatusChangedToSubmittedIntegrationEvent>, OrderStatusChangeToSubmittedHandler>();
+            services.AddSingleton<IRabbitMqEventHandler<OrderStatusChangedToSubmittedIntegrationEvent>, OrderStatusChangeToSubmittedHandler2>();
             return services;
         }
     }

@@ -70,6 +70,7 @@ namespace OrderingSystemDDD.Controllers
 
 
             //test publish 
+            // todo try and catch
             publisher.Publish(integrationEvent);
 
             try

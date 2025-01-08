@@ -4,9 +4,9 @@ using EventBus.IntegrationEvents;
 namespace Ordering.SignalrHub.RabbitMqHandlers.EvenstHandlers
 {
     // todo move to handler microservices 
-    public class OrderStatusChangeToSubmittedHandler : IRabbitMqEventHandler<OrderStatusChangedToSubmittedIntegrationEvent>
+    public class OrderStatusChangeToSubmittedHandler2 : IRabbitMqEventHandler<OrderStatusChangedToSubmittedIntegrationEvent>
     {
-        public OrderStatusChangeToSubmittedHandler()
+        public OrderStatusChangeToSubmittedHandler2()
         {
             
         }

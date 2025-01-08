@@ -34,6 +34,12 @@ namespace EventBus.RabbitMqImplementation
 
                 //get the queue that have least no of message to puplish into it when one queue have multiple channels
                 var queueDeclareOk = channel.QueueDeclarePassive(queueDefinition.Name);
+
+                if (queueDeclareOk == null)
+                {
+                    definition = queueDefinition;
+                    break;
+                }
                 uint messageCount = queueDeclareOk.MessageCount;
 
                 if (messageCount < minMessageCount)

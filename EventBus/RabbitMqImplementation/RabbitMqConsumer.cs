@@ -22,7 +22,7 @@ namespace EventBus.RabbitMqImplementation
         }
         public Task Start(CancellationToken cancellationToken)
         {
-            foreach(var queueDefinition in _rabbitMqConfigrationService.Build(queueName))
+            foreach (var queueDefinition in _rabbitMqConfigrationService.Build(queueName))
             {
                 try
                 {
@@ -30,7 +30,7 @@ namespace EventBus.RabbitMqImplementation
                 }
                 catch (Exception exception)
                 {
-
+                    // log error 
                 }
             }
             return Task.CompletedTask;
@@ -42,36 +42,46 @@ namespace EventBus.RabbitMqImplementation
             channel.QueueBind(definition.Name, definition.Exchange, definition.RoutingKey);
 
             channel.BasicQos(0, 1, false);
-            var consumer = new EventingBasicConsumer(channel);
 
-            consumer.Received += (sender, eventArgs) =>
+            var handlers = serviceProvider.CreateScope().ServiceProvider.GetServices<IRabbitMqEventHandler<TMessage>>().ToList();
+
+            //when register consumer in sequental like foreach it alwayes go to the first consumer method
+            Parallel.ForEach(handlers, handler =>
             {
-                try
+                var consumer = new EventingBasicConsumer(channel);
+                consumer.Received += async (sender, eventArgs) =>
                 {
-                    var message = JsonConvert.DeserializeObject<TMessage>(Encoding.UTF8.GetString(eventArgs.Body.ToArray()));
-                    if (Handleessage(message).Result)
-                        channel.BasicAck(eventArgs.DeliveryTag, false);
-                    else
+                    try
+                    {
+                        bool result = false;
+                        var message = JsonConvert.DeserializeObject<TMessage>(Encoding.UTF8.GetString(eventArgs.Body.ToArray()));
+
+                        var handleMethod = handler.GetType().GetMethod("HandleAsync");
+                        if (handleMethod != null)
+                        {
+                            result = await (Task<bool>)handleMethod.Invoke(handler, new object[] { message });
+                        }
+                        if (result)
+                            channel.BasicAck(eventArgs.DeliveryTag, false);
+                        else
+                            channel.BasicNack(eventArgs.DeliveryTag, false, true);
+
+                    }
+                    catch (Exception exception)
+                    {
                         channel.BasicNack(eventArgs.DeliveryTag, false, true);
+                    }
+                };
 
-                }
-                catch (Exception exception)
-                {
-                    channel.BasicNack(eventArgs.DeliveryTag, false, true);
-                }
-            };
+                channel.BasicConsume(definition.Name, false, consumer);
+            });
 
-            channel.BasicConsume(definition.Name, false, consumer);
+
+
+
 
         }
-        private async Task<bool> Handleessage(TMessage message)
-        {
-            var handler = serviceProvider.CreateScope().ServiceProvider.GetService<IRabbitMqEventHandler<TMessage>>();
-            if (handler != null)
-            {
-                return await handler.HandleAsync(message);
-            }
-            return false;
-        }
+
+      
     }
 }
