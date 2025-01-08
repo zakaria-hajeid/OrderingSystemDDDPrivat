@@ -1,6 +1,7 @@
 using EventBus.Abstraction;
 using EventBus.Abstraction.RabbitMq;
 using EventBus.IntegrationEvents;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Ordering.Application.Services;
@@ -11,7 +12,7 @@ using System.Text.Json;
 namespace OrderingSystemDDD.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class OrderStockController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
@@ -55,12 +56,13 @@ namespace OrderingSystemDDD.Controllers
         //From webHook
         [HttpPost("SetStockItem")]
 
-        public async Task<IActionResult> SetStockItem([FromBody]WebhookData input)
+        public async Task<IActionResult> SetStockItem([FromBody] WebhookData input)
         {
             SetOrderStockInput payload = JsonSerializer.Deserialize<SetOrderStockInput>(input.Payload)!;//solve
             return Ok();
         }
-       [HttpPost("MockOrderPaidSaveIntegrationEvent")]
+        [Authorize]
+        [HttpPost("MockOrderPaidSaveIntegrationEvent")]
         // mock Reciving end point when ordered paid to set the stok item in repo 
         //From webHook
         public async Task<IActionResult> MockOrderSaveIntegrationEvent()
@@ -113,29 +115,29 @@ namespace OrderingSystemDDD.Controllers
 
 }
 public class WebhookData
-    {
-        public DateTime When { get; set; }
+{
+    public DateTime When { get; set; }
 
-        public string Payload { get; set; }
+    public string Payload { get; set; }
 
-        public string Type { get; set; }
-    }
+    public string Type { get; set; }
+}
 
-    public record SetOrderStockInput
+public record SetOrderStockInput
 {
     public int orderId { get; set; }
     public List<OrderStockItem> stockItems { get; set; }
 
 }
-   
-    public record OrderStockItem
-    {
-        public int ProductId { get; }
-        public int Units { get; }
 
-        public OrderStockItem(int productId, int units)
-        {
-            ProductId = productId;
-            Units = units;
-        }
+public record OrderStockItem
+{
+    public int ProductId { get; }
+    public int Units { get; }
+
+    public OrderStockItem(int productId, int units)
+    {
+        ProductId = productId;
+        Units = units;
     }
+}

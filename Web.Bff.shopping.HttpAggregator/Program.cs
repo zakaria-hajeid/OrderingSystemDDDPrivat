@@ -1,8 +1,11 @@
 using Asp.Versioning;
 using GrpcOrder;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Service.Common;
 using Service.Common.Extinsions;
+using System.Text;
 using Web.Bff.shopping.HttpAggregator.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -57,6 +60,16 @@ builder.Services.AddGrpcClient<OrderRpc.OrderRpcClient>((services, options) =>
     })
     ;*/
 
+
+//autrization 
+
+
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireAuthenticatedUser", policy =>
+          policy.RequireAuthenticatedUser());    // Add other policies as needed
+});
 //Api versioning 
 builder.Services.AddApiVersioning(options =>
 {

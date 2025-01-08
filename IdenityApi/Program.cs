@@ -1,12 +1,11 @@
 using IdenityApi.Data;
-using IdenityApi.JWTSetup;
 using IdenityApi.Models;
 using IdenityApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Data;
+using Service.Common.Extinsions;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,19 +25,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("IdentityDB"), x=>x.MigrationsAssembly("IdenityApi"));
 });
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(Options =>
-{
-    Options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Jwt:SecretKey"]!)),
-        ValidateIssuer = true,
-        ValidateLifetime = true,
-        ValidateAudience = false,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-    };
-});
+
+builder.Services.AddAuthinticationOption(builder.Configuration);
+
 //builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 
 //builder.Services.ConfigureOptions<JWTBearerOptionSetup>(); Alternative way try it 

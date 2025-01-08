@@ -23,6 +23,9 @@ builder.Services.InstallServices(builder.Configuration,
                                  typeof(ApplicationServiceInstalle).Assembly,
                                  typeof(InftastructiorServiceInstaller).Assembly);
 builder.Services.AddControllers();
+
+builder.Services.AddAuthinticationOption(builder.Configuration);
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -51,6 +54,7 @@ using (var scope = app.Services.CreateScope())
 
 
 }
+
 
 // Configure the HTTP request pip  eline.
 if (app.Environment.IsDevelopment())

@@ -22,4 +22,8 @@
     <PackageReference Include="System.Security.Claims" Version="4.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Service.Common\Service.Common.csproj" />
+  </ItemGroup>
+
 </Project>
