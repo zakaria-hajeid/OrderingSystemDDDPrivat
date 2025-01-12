@@ -1,12 +1,14 @@
-﻿using EventBus.EventHandlerModel;
+﻿using EventBus;
+using EventBus.Abstraction.RabbitMq;
+using EventBus.EventHandlerModel;
+using EventBus.Events;
+using EventBus.IntegrationEvents;
 using FluentValidation;
 using MediatR.NotificationPublishers;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using Ordering.Application;
 using Ordering.Application.Behaviors;
 using Service.Common.Extinsions;
-using System.Text;
+using AssemblyReference = Ordering.Application.AssemblyReference;
 
 namespace OrderingSystemDDD.Configration
 {
@@ -27,13 +29,12 @@ namespace OrderingSystemDDD.Configration
                 cfg.AddOpenBehavior(typeof(TransactionBehavior<,>));
             });
 
-            services.AddValidatorsFromAssembly(AssemblyReference.assembly);
+            services.AddValidatorsFromAssembly(EventBus.AssemblyReference.assembly);
 
             services.AddEventBusSharedServices(configuration);
             services.Configure<RabbitMqOptions>(options => configuration.GetSection(nameof(RabbitMqOptions)).Bind(options));
             services.AddRabbitMqPublishers();
             services.AddRabbitMqConfigration();
-
 
 
         }

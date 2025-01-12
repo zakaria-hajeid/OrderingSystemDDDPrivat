@@ -62,8 +62,7 @@ namespace Ordering.Persistence
                 case EntityState.Modified:
                     Dbset.Update(entity);
                     break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+              
             }
         }
     }

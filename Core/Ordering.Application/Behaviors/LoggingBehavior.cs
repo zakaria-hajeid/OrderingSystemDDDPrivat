@@ -18,9 +18,7 @@ namespace Ordering.Application.Behaviors
 
         public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Handling command {CommandName} ({@Command})", request);
             var response = await next();
-            _logger.LogInformation("Command {CommandName} handled - response: {@Response}", response);
             return response;
 
         }

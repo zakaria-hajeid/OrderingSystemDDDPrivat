@@ -12,7 +12,7 @@ namespace Ordering.SignalrHub.RabbitMqHandlers.EvenstHandlers
         }
         public async ValueTask<bool> HandleAsync(OrderStatusChangedToSubmittedIntegrationEvent parameters)
         {
-            return false ;                
+            return true ;                
             
         }
     }

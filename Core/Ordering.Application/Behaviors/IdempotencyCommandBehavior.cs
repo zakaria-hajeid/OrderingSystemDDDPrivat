@@ -25,8 +25,7 @@ namespace Ordering.Application.Behaviors
         }
         public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
-
+            return await next();
         }
     }
 }

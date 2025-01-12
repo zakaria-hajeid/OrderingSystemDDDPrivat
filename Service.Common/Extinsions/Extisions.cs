@@ -254,6 +254,8 @@ namespace Service.Common.Extinsions
             services.AddSingleton<IRabbitMqConfigrationService, RabbitMqConfigrationService>();
             return services;
         }
+
+      
         #endregion
 
 

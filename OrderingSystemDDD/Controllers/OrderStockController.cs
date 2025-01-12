@@ -105,6 +105,7 @@ namespace OrderingSystemDDD.Controllers
             }
             catch (Exception ex)
             {
+
                 throw ex;
             }
             return Ok();
