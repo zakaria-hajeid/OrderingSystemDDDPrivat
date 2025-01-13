@@ -9,7 +9,7 @@ namespace Ordering.Domain.Sahred
     public sealed class ValidationResult<TValue> : Result<TValue>, IValidationResult
     {
         private ValidationResult(Error[] errors) : 
-            base(default, false, IValidationResult.ValidationError)
+            base(default, false, IValidationResult.ValidationError,"ErrorOcured")
             => Errors = errors;
        
         public Error[] Errors { get; }

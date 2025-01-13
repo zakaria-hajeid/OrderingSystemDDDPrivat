@@ -39,7 +39,7 @@ internal sealed class ValidateOrAddBuyerAggregateWhenOrderStartedDomainEventHand
         }
         //publish domain event and save changes
         await _buyerRepository.UnitOfWork.PublishEventAsyncAsync(cancellationToken);
-        var integrationEvent = new OrderStatusChangedToSubmittedIntegrationEvent(domainEvent.order.Id, domainEvent.order.OrderStatus.Name, byerCreate.Value.Name);
+        var integrationEvent = new OrderStatusChangedToSubmittedIntegrationEvent(domainEvent.order.Id, domainEvent.order.OrderStatus.Name, byerCreate.Payload.Name);
         await _orderingIntegrationEventService.SaveEventAsync(integrationEvent);
         // OrderingApiTrace.LogOrderBuyerAndPaymentValidatedOrUpdated(_logger, buyerUpdated.Id, domainEvent.Order.Id);
     }

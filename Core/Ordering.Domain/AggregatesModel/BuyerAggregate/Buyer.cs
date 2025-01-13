@@ -45,8 +45,8 @@ public class Buyer : AggregateRoot
         var payment = PaymentMethod.Create(cardTypeId, $"Payment Method on {DateTime.UtcNow}", @event.cardNumber, @event.cardSecurityNumber, @event.cardHolderName, @event.cardExpiration);
         if (payment.IsSuccess)
         {
-            _paymentMethods.Add(payment.Value);
-            AddDomainEvent(new BuyerAndPaymentMethodVerifiedDomainEvent(this, payment.Value, @event.order.Id));
+            _paymentMethods.Add(payment.Payload);
+            AddDomainEvent(new BuyerAndPaymentMethodVerifiedDomainEvent(this, payment.Payload, @event.order.Id));
             return payment;
 
         }

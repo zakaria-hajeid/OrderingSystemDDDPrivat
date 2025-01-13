@@ -54,6 +54,7 @@ public class PaymentMethod : Entity
             return Result.Failure<PaymentMethod>(DomainErrors.PaymentMethodError.CardExpire);
         }
         PaymentMethod paymentMethod = new(cardTypeId, alias,cardNumber,securityNumber,cardHolderName,expiration);
+        // using this operator implicit casting PaymentMethod to  Result<PaymentMethod>:  public static implicit operator Result<TValue>(TValue? value) => Create(value); 
         return paymentMethod;
 
     }

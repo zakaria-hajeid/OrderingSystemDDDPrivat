@@ -38,7 +38,7 @@ namespace Ordering.Application.Order.Commands
             {
                 await _orderRepository.Add(order);
                 await _orderRepository.UnitOfWork.PublishEventAsyncAsync();
-                return Result.success();
+                return Result<int>.success(order.Id,"OrderCreatedSuccess");
             }
            return Result.Failure<OrederCommand>(AddOrderItem.Select(x=>x.Error).FirstOrDefault()!);
         }

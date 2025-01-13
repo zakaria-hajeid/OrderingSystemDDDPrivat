@@ -10,9 +10,9 @@ namespace Ordering.Domain.Sahred
 {
     public class Result
     {
-        protected internal Result(bool isSuccess,Error error)
+        protected internal Result(bool isSuccess, Error error, string successMesssage)
         {
-            if(isSuccess && error != Error.None)
+            if (isSuccess && error != Error.None)
             {
                 throw new InvalidOperationException();
             }
@@ -22,28 +22,30 @@ namespace Ordering.Domain.Sahred
             }
             IsSuccess = isSuccess;
             Error = error;
+            SuccessMesssage = successMesssage;
         }
         public bool IsSuccess { get; }
         public bool IsFailuer => !IsSuccess;
-        public Error  Error { get; }
-        public static Result success() => new Result(true, Error.None);
-        public static Result<TValue> success<TValue>(TValue value) => new (value, true, Error.None);
-        public static Result<TValue> Failure<TValue>(Error error) => new(false, error);
-        public static Result<TValue> Create<TValue>(TValue? value) => value is not null ? success(value):
-            Failure<TValue>(Error.NullValue);
-       
+        public Error Error { get; }
+        public string SuccessMesssage { get; set; }
+
+        //static method  
+        public static Result success(string message = "") => new Result(true, Error.None, message);
+        public static Result<TValue> success<TValue>(TValue value, string message = "") => new(value, true, Error.None, message);
+        public static Result<TValue> Failure<TValue>(Error error) => new(false, error, "");
+         public static Result<TValue> Create<TValue>(TValue? value) => value is not null ? success(value, "Success Comand") :
+             Failure<TValue>(Error.NullValue);
+
     }
 
     public class Test
     {
-        Result<object> x()
+        /*Result<object> x()
         {
 
-            var ss= Result.Failure<object>(DomainErrors.order.createdOrderError);
-            object re = ss.Value;
-            return re;
+            var ss = Result.Failure<object>(DomainErrors.order.createdOrderError);
+            object re = ss.Payload;
             //or
-            return re;
-        }
+        }*/
     }
 }

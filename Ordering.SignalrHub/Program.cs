@@ -1,11 +1,5 @@
-using EventBus.Abstraction;
 using EventBus.EventHandlerModel;
-using EventBus.Events;
-using IntegrationEventLogEF.DbContexts;
 using MassTransit;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Ordering.SignalrHub;
 using Ordering.SignalrHub.Extinsions;
 using Ordering.SignalrHub.HostedService;
 using Ordering.SignalrHub.Hubs;

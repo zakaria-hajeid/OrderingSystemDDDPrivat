@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Ordering.Application.Order.Commands;
+using Ordering.Domain.Sahred;
 using OrderingSystemDDD.Extinsions;
 
 namespace OrderingSystemDDD.Prsentions
@@ -50,8 +51,9 @@ namespace OrderingSystemDDD.Prsentions
 
                 // OrederCommand orederCommand = createOrder.Adapt<OrederCommand>();
                 var result = await sender.Send(createOrder);
-                return result.Match(onSuccess: () => Results.Ok("Order Created"), onFailure: f => Results.BadRequest(f));
-            })
+                Result<int> resut = (Result<int>)result;
+                return result.Match(onSuccess: () => Results.Ok(resut), onFailure: f => Results.BadRequest(f));
+                })
               .Produces(StatusCodes.Status400BadRequest)
               .Produces(StatusCodes.Status200OK)
               // .AddEndpointFilter<"s"> speacfic filter 

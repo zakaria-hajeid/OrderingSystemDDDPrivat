@@ -85,7 +85,7 @@ public class Order : AggregateRoot
             var orderItem = OrderItem.Create(productId, productName, unitPrice, discount, pictureUrl, units);
             if (orderItem.IsSuccess)
             {
-                _orderItems.Add(orderItem.Value);
+                _orderItems.Add(orderItem.Payload);
                 return Result.success();
 
             }
