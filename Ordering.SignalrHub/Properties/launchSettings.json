@@ -3,9 +3,9 @@
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:57247",
-      "sslPort": 44368
+    "iis": {
+      "applicationUrl": "http://localhost/Ordering.SignalrHub",
+      "sslPort": 0
     }
   },
   "profiles": {
@@ -29,10 +29,10 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "IIS Express": {
-      "commandName": "IISExpress",
+    "IIS": {
+      "commandName": "IIS",
       "launchBrowser": true,
-      "launchUrl": "swagger",
+      "launchUrl": "http://localhost/Ordering.SignalrHub/swagger/index.html",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

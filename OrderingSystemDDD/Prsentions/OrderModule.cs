@@ -1,5 +1,7 @@
-﻿using MediatR;
+﻿using Mapster;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Ordering.Application.Dtos.CreateOrderDtos;
 using Ordering.Application.Order.Commands;
 using Ordering.Domain.Sahred;
 using OrderingSystemDDD.Extinsions;
@@ -46,11 +48,10 @@ namespace OrderingSystemDDD.Prsentions
   ]
 }
              */
-            app.MapPost("/api/Order/Create", async (ISender sender, [FromHeader(Name ="X-Idompotency-Key")]string requestId,OrederCommand createOrder) =>
+            app.MapPost("/api/Order/Create", async (ISender sender, [FromHeader(Name ="X-Idompotency-Key")]string requestId, CreateOrderDto createOrder) =>
             {
-
-                // OrederCommand orederCommand = createOrder.Adapt<OrederCommand>();
-                var result = await sender.Send(createOrder);
+                OrederCommand orederCommand = createOrder.Adapt<OrederCommand>();
+                var result = await sender.Send(orederCommand);
                 Result<int> resut = (Result<int>)result;
                 return result.Match(onSuccess: () => Results.Ok(resut), onFailure: f => Results.BadRequest(f));
                 })

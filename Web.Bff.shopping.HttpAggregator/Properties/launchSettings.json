@@ -3,9 +3,9 @@
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:24840",
-      "sslPort": 44353
+    "iis": {
+      "applicationUrl": "http://localhost/Web.Bff.shopping.HttpAggregator",
+      "sslPort": 0
     }
   },
   "profiles": {
@@ -29,10 +29,10 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "IIS Express": {
-      "commandName": "IISExpress",
+    "IIS": {
+      "commandName": "IIS",
       "launchBrowser": true,
-      "launchUrl": "swagger",
+      "launchUrl": "http://localhost/Web.Bff.shopping.HttpAggregator/swagger/index.html",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

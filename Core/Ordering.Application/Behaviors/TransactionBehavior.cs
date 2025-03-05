@@ -4,13 +4,7 @@ using Microsoft.Extensions.Logging;
 using Ordering.Application.Abstraction.Messaging;
 using Ordering.Application.Services;
 using Ordering.Domain.Prematives;
-using Ordering.Domain.Repository;
 using Ordering.Persistence;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ordering.Application.Behaviors
 {
