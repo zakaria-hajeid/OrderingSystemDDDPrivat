@@ -4,7 +4,7 @@ namespace Web.Bff.shopping.HttpAggregator.Services
 {
     public sealed class OrderGrpcService
     {
-        /*private readonly OrderRpc.OrderRpcClient _OrderRpcClient;
+        private readonly OrderRpc.OrderRpcClient _OrderRpcClient;
 
         public OrderGrpcService(OrderRpc.OrderRpcClient orderRpcClient )
         {
@@ -18,6 +18,6 @@ namespace Web.Bff.shopping.HttpAggregator.Services
             };
 
             await _OrderRpcClient.UpdateOrderAsync(map);
-        }*/
+        }
     }
 }

@@ -9,12 +9,7 @@ internal static class Extensions
 {
     //make generic and move to common 
 
-    public static IServiceCollection AddReverseProxy(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddReverseProxy().LoadFromConfig(configuration.GetRequiredSection("ReverseProxy"));
-
-        return services;
-    }
+    
 
     public static IServiceCollection AddUrlGroupHealthChecks(this IServiceCollection services, IConfiguration configuration)
     {

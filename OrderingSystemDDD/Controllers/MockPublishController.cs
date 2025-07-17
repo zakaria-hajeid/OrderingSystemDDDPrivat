@@ -13,56 +13,23 @@ namespace OrderingSystemDDD.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class OrderStockController : ControllerBase
+    public class MockPublishController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
-
-        private readonly ILogger<OrderStockController> _logger;
         private readonly IEventBus _eventBus;
         private readonly IOrderingIntegrationEventService _orderingIntegrationEventService;
         private readonly ApplicationDbContext _applicationDbContext;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRabbitMqPublisher<OrderStatusChangedToSubmittedIntegrationEvent> publisher;
-
-
-
-
-        public OrderStockController(ILogger<OrderStockController> logger, IEventBus eventBus, IOrderingIntegrationEventService orderingIntegrationEventService, ApplicationDbContext applicationDbContext, IUnitOfWork unitOfWork, IRabbitMqPublisher<OrderStatusChangedToSubmittedIntegrationEvent> publisher)
+        public MockPublishController(IEventBus eventBus, IOrderingIntegrationEventService orderingIntegrationEventService, ApplicationDbContext applicationDbContext, IUnitOfWork unitOfWork, IRabbitMqPublisher<OrderStatusChangedToSubmittedIntegrationEvent> publisher)
         {
-            _logger = logger;
             _eventBus = eventBus;
             _orderingIntegrationEventService = orderingIntegrationEventService;
             _applicationDbContext = applicationDbContext;
             _unitOfWork = unitOfWork;
             this.publisher = publisher;
         }
-
-        [HttpGet(Name = "GetWeatherForecast")]
-        public IEnumerable<WeatherForecast> Get(string qquery)
-        {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
-        }
-
-        // mock Reciving end point when ordered paid to set the stok item in repo 
-        //From webHook
-        [HttpPost("SetStockItem")]
-
-        public async Task<IActionResult> SetStockItem([FromBody] WebhookData input)
-        {
-            SetOrderStockInput payload = JsonSerializer.Deserialize<SetOrderStockInput>(input.Payload)!;//solve
-            return Ok();
-        }
         [Authorize]
-        [HttpPost("MockOrderPaidSaveIntegrationEvent")]
+        [HttpPost("MockDirictPublish")]
         // mock Reciving end point when ordered paid to set the stok item in repo 
         //From webHook
         public async Task<IActionResult> MockOrderSaveIntegrationEvent()
@@ -93,7 +60,8 @@ namespace OrderingSystemDDD.Controllers
             }
             return Ok();
         }
-        [HttpPost("MockOrderPaideRetriveIntegrationEvent")]
+        [Authorize]
+        [HttpPost("MockRetriveAllIntegrationEventAndPublish")]
         // mock Reciving end point when ordered paid to set the stok item in repo 
         //From webHook
         public async Task<IActionResult> MockOrderPaideRetriveIntegrationEvent(Guid transactionId)
@@ -113,32 +81,4 @@ namespace OrderingSystemDDD.Controllers
     }
 
 
-
-}
-public class WebhookData
-{
-    public DateTime When { get; set; }
-
-    public string Payload { get; set; }
-
-    public string Type { get; set; }
-}
-
-public record SetOrderStockInput
-{
-    public int orderId { get; set; }
-    public List<OrderStockItem> stockItems { get; set; }
-
-}
-
-public record OrderStockItem
-{
-    public int ProductId { get; }
-    public int Units { get; }
-
-    public OrderStockItem(int productId, int units)
-    {
-        ProductId = productId;
-        Units = units;
-    }
 }

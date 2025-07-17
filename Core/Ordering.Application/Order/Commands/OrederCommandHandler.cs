@@ -1,17 +1,8 @@
-﻿using IntegrationEventLogEF.Services;
-using MediatR;
-using Ordering.Application.Abstraction.Messaging;
+﻿using Ordering.Application.Abstraction.Messaging;
 using Ordering.Domain.AggregatesModel.OrderAggregate;
-using Ordering.Domain.Prematives;
 using Ordering.Domain.Repository;
 using Ordering.Domain.Sahred;
-using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OrderEntity= Ordering.Domain.AggregatesModel.OrderAggregate.Order;
+using OrderEntity = Ordering.Domain.AggregatesModel.OrderAggregate.Order;
 
 namespace Ordering.Application.Order.Commands
 {

@@ -65,6 +65,7 @@ namespace Service.Common.Extinsions
         }
         public static WebApplicationBuilder AddServiceDefaults(this WebApplicationBuilder builder)
         {
+            // TODO: ما تحطها هون مش واضحه بالسيرفس ديفولت 
             builder.Services.AddDefaultHealthChecks(builder.Configuration);
             return builder;
         }
@@ -105,11 +106,68 @@ namespace Service.Common.Extinsions
             }
 
             //app.UseDefaultOpenApi(app.Configuration);
-
+           //افصلها بميثود لحال
             app.MapDefaultHealthChecks();
 
             return app;
         }
+        public static IServiceCollection AddRateLinitingIpAddress(this IServiceCollection services)
+        {
+            services.AddRateLimiter(options =>
+            {
+                options.RejectionStatusCode = 429;
+                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+                {
+
+                    return RateLimitPartition.GetFixedWindowLimiter(
+                            partitionKey: context.Connection.RemoteIpAddress?.ToString(),
+                            factory: _ => new FixedWindowRateLimiterOptions
+                            {
+                                PermitLimit = 2,
+                                Window = TimeSpan.FromSeconds(10)
+                            })!;
+                });
+            });
+
+            return services;
+        }
+        public static IServiceCollection AddAuthinticationOption(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(Options =>
+    {
+        Options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration["Jwt:SecretKey"]!)),
+            ValidateIssuer = true,
+            ValidateLifetime = true,
+            ValidIssuer = configuration["Jwt:Issuer"], //source to validate my token 
+            ValidAudience = configuration["Jwt:Audience"], // me 
+        };
+    });
+
+            return services;
+        }
+
+        #region  Events Regestraions
+
+        public static IServiceCollection AddRabbitMqConsumers(this IServiceCollection services)
+        {
+            services.AddSingleton(typeof(IRabbitMqConsumer<>), typeof(RabbitMqConsumer<>));
+            return services;
+        }
+        public static IServiceCollection AddRabbitMqPublishers(this IServiceCollection services)
+        {
+            services.AddSingleton(typeof(IRabbitMqPublisher<>), typeof(RabbitMqPublisher<>));
+            return services;
+        }
+        public static IServiceCollection AddRabbitMqConfigration(this IServiceCollection services)
+        {
+            services.AddSingleton<IRabbitMqConfigrationService, RabbitMqConfigrationService>();
+            return services;
+        }
+        #endregion
 
         #endregion
         #region Private Methods
@@ -198,66 +256,9 @@ namespace Service.Common.Extinsions
 
 
         }
-        public static IServiceCollection AddRateLinitingIpAddress(this IServiceCollection services)
-        {
-            services.AddRateLimiter(options =>
-            {
-                options.RejectionStatusCode = 429;
-                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
-                {
+    
 
-                    return RateLimitPartition.GetFixedWindowLimiter(
-                            partitionKey: context.Connection.RemoteIpAddress?.ToString(),
-                            factory: _ => new FixedWindowRateLimiterOptions
-                            {
-                                PermitLimit = 2,
-                                Window = TimeSpan.FromSeconds(10)
-                            })!;
-                });
-            });
-
-            return services;
-        }
-        public static IServiceCollection AddAuthinticationOption(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(Options =>
-    {
-        Options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration["Jwt:SecretKey"]!)),
-            ValidateIssuer = true,
-            ValidateLifetime = true,
-            ValidIssuer = configuration["Jwt:Issuer"], //source to validate my token 
-            ValidAudience = configuration["Jwt:Audience"], // me 
-        };
-    });
-
-            return services;
-        }
-
-        #region  Events Regestraions
-      
-        public static IServiceCollection AddRabbitMqConsumers(this IServiceCollection services)
-        {
-            services.AddSingleton(typeof(IRabbitMqConsumer<>), typeof(RabbitMqConsumer<>));
-            return services;
-        }
-        public static IServiceCollection AddRabbitMqPublishers(this IServiceCollection services)
-        {
-            services.AddSingleton(typeof(IRabbitMqPublisher<>), typeof(RabbitMqPublisher<>));
-            return services;
-        }
-        public static IServiceCollection AddRabbitMqConfigration(this IServiceCollection services)
-        {
-            services.AddSingleton<IRabbitMqConfigrationService, RabbitMqConfigrationService>();
-            return services;
-        }
-
-      
-        #endregion
-
+     
 
         #endregion
     }
