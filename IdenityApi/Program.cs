@@ -55,8 +55,11 @@ IdentityBuilder Idbuilder = builder.Services.AddIdentityCore<ApplicationUser>(op
     opt.Password.RequireNonAlphanumeric = false;//@ or space etc...
     opt.Password.RequireUppercase = false;
 });
+Idbuilder = Idbuilder.AddRoles<IdentityRole>();
+
 Idbuilder.AddEntityFrameworkStores<ApplicationDbContext>();
 Idbuilder.AddSignInManager<SignInManager<ApplicationUser>>();
+Idbuilder.AddRoleManager<RoleManager<IdentityRole>>();
 
 builder.Services.AddIdentityCore<ApplicationUser>(o =>
 {

@@ -6,5 +6,6 @@ namespace IdenityApi.Model
     {
         public string Name { get; set; }
         public  string password { get; set; }
+        public  List<string> userRols { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using IdenityApi.Models;
+using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -6,7 +7,9 @@ using Microsoft.IdentityModel.Tokens;
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,21 +20,24 @@ namespace IdenityApi.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+
         private readonly IConfiguration _config;
 
 
-        public UserService(IHttpContextAccessor httpContextAccessor, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration config)
+        public UserService(IHttpContextAccessor httpContextAccessor, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration config, RoleManager<IdentityRole> roleManager)
         {
             _httpContextAccessor = httpContextAccessor;
             _userManager = userManager;
             _signInManager = signInManager;
             _config = config;
+            _roleManager = roleManager;
         }
         public IEnumerable<Claim>? GetCurrentUser()
         {
             return _httpContextAccessor.HttpContext?.User.Claims;
         }
-        public  async Task<ClaimsPrincipal> GetClaimToken(string accessToken)
+        public async Task<ClaimsPrincipal> GetClaimToken(string accessToken)
         {
 
             var tokenValidationParameters = new TokenValidationParameters
@@ -44,19 +50,53 @@ namespace IdenityApi.Services
                 ValidAudience = _config["Jwt:Audience"],
             };
             var tokenHandler = new JwtSecurityTokenHandler();
-            SecurityToken token ; 
-            var result =   tokenHandler.ValidateToken(accessToken, tokenValidationParameters,out  token );
+            SecurityToken token;
+            var result = tokenHandler.ValidateToken(accessToken, tokenValidationParameters, out token);
             var jwtSecurityToken = token as JwtSecurityToken;
             if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha512, StringComparison.InvariantCultureIgnoreCase))
                 throw new SecurityTokenException("Invalid token");
             return await Task.FromResult(result);
         }
 
-        public async Task<IdentityResult> CreateaUser(ApplicationUser user, string password)
-        {
-            return await _userManager.CreateAsync(user, password);
+        public async Task<IdentityResult> CreateaUser(ApplicationUser user, string password, List<string> userRols)
 
+        {
+            // إنشاء المستخدم
+            var result = await _userManager.CreateAsync(user, password);
+            if (!result.Succeeded)
+                return result;
+
+            // التأكد من أن كل Role موجودة، إذا لا، يتم إنشاؤها
+            foreach (var role in userRols.Distinct())
+            {
+                if (!await _roleManager.RoleExistsAsync(role))
+                {
+                    // todo:ضيف الرولز بسكريب ثابت بالداتبيز
+                    var roleResult = await _roleManager.CreateAsync(new IdentityRole(role));
+                    if (!roleResult.Succeeded)
+                    {
+                        // حذف المستخدم إذا فشل إنشاء الرول لتفادي حالات غير متسقة
+                        await _userManager.DeleteAsync(user);
+                        return IdentityResult.Failed(new IdentityError
+                        {
+                            Description = $"Failed to create role '{role}'."
+                        });
+                    }
+                }
+            }
+
+            // ربط المستخدم بالرولز
+            var addRoleResult = await _userManager.AddToRolesAsync(user, userRols);
+            if (!addRoleResult.Succeeded)
+            {
+                // حذف المستخدم إذا فشل الربط
+                await _userManager.DeleteAsync(user);
+                return IdentityResult.Failed(addRoleResult.Errors.ToArray());
+            }
+
+            return IdentityResult.Success;
         }
+
         public async Task<IdentityResult> AddUserRole(ApplicationUser userId, string RoleName)
         {
             return await _userManager.AddToRoleAsync(userId, RoleName);
@@ -89,7 +129,7 @@ namespace IdenityApi.Services
                 };
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var token = tokenHandler.CreateToken(tokenDescriptor);
-              
+
                 string tokens = tokenHandler.WriteToken(token);
                 return tokens;
             }
@@ -98,6 +138,23 @@ namespace IdenityApi.Services
 
         }
 
+        public async Task<bool> ValidateAccessPath(string role)
+        {
+
+            var userRoleNames = _httpContextAccessor.HttpContext?.User.Claims
+                .Where(c => c.Type == ClaimTypes.Role || c.Type == "role")
+                .Select(c => c.Value)
+                .ToList();
+
+            if (!userRoleNames.Any())
+                return false;
+
+            // تحقق هل أحد رولز المستخدم مسموح بها لهذا الباث
+            if (!userRoleNames.Contains(role))
+                return false;
+
+            return true;
+        }
 
         //todo :add refresh token 
         /*public async Task<LoginResult> RefreshToken(LoginResultDtos TokenModel)
