@@ -80,14 +80,12 @@ namespace OrderingSystemDDD.Controllers
         }
 
 
-
+        [Authorize(Policy = "RequireOrderManager")]
         [HttpPost("TestApg")]
         // mock Reciving end point when ordered paid to set the stok item in repo 
         //From webHook
         public async Task<IActionResult> TestApg(Guid transactionId)
         {
-
-        
             return Ok();
         }
     }
