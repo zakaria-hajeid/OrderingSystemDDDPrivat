@@ -26,12 +26,28 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("IdentityDB"), x=>x.MigrationsAssembly("IdenityApi"));
 });
 
-builder.Services.AddAuthinticationOption(builder.Configuration);
 
-//builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+//VAlidate jwt
 
-//builder.Services.ConfigureOptions<JWTBearerOptionSetup>(); Alternative way try it 
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Jwt:SecretKey"])),
+        ValidateIssuer = false,
+        ValidateLifetime = false,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+    };
+});
 
+// add identity user 
 IdentityBuilder Idbuilder = builder.Services.AddIdentityCore<ApplicationUser>(opt =>
 {
     opt.Password.RequireDigit = false;
@@ -39,11 +55,7 @@ IdentityBuilder Idbuilder = builder.Services.AddIdentityCore<ApplicationUser>(op
     opt.Password.RequireNonAlphanumeric = false;//@ or space etc...
     opt.Password.RequireUppercase = false;
 });
-
-//Idbuilder = new IdentityBuilder(Idbuilder.UserType, typeof(IdentityRole<int>), Idbuilder.Services);
 Idbuilder.AddEntityFrameworkStores<ApplicationDbContext>();
-//Idbuilder.AddRoleValidator<RoleValidator<IdentityRole<int>>>();
-//Idbuilder.AddRoleManager<RoleManager<IdentityRole<int>>>();
 Idbuilder.AddSignInManager<SignInManager<ApplicationUser>>();
 
 builder.Services.AddIdentityCore<ApplicationUser>(o =>
@@ -53,32 +65,12 @@ builder.Services.AddIdentityCore<ApplicationUser>(o =>
 }).AddDefaultTokenProviders();
 
 
-/*builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>()
-.AddEntityFrameworkStores<ApplicationDbContext>()
-.AddDefaultTokenProviders();
-*/
 builder.Services.Configure<IdentityOptions>(options =>
 {
-
     options.SignIn.RequireConfirmedAccount = false;
-
 
 });
 
-//add using configure option inteface
-
-/*.AddJwtBearer(Options =>
-    {
-        Options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["Jwt:SecretKey"])),
-            ValidateIssuer = false,
-            ValidateLifetime = false,
-            ValidIssuer = Configuration["Jwt:Issuer"],
-            ValidAudience = Configuration["Jwt:Audience"],
-        };
-    });*/
 
 var app = builder.Build();
 

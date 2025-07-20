@@ -1,18 +1,35 @@
+using ApiGateway.Transform;
 using Microsoft.Extensions.Configuration;
 using Service.Common;
 using Service.Common.Extinsions;
+using Yarp.ReverseProxy.Transforms;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add yarp to the container.
-builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetRequiredSection("ReverseProxy"));
-
-// add Authintication 
-builder.Services.AddAuthinticationOption(builder.Configuration);
-builder.Services.AddAuthorization(options =>
+builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetRequiredSection("ReverseProxy")).AddTransforms(transformBuilderContext =>
 {
-    options.AddPolicy("RequireAuthenticatedUser", policy =>
-          policy.RequireAuthenticatedUser());    // Add other policies as needed
+    // Add custom transform to specific routes 
+    //TODO:put all rout in app setting
+    if (transformBuilderContext.Route.RouteId == "Ordering-route")
+    {
+        transformBuilderContext.AddRequestTransform(async transformContext =>
+        {
+            var transform = transformContext.HttpContext.RequestServices
+                .GetRequiredService<SecurityApiTransform>();
+            await transform.ApplyAsync(transformContext);
+             
+        });
+    }
 });
+
+
+// Authintication api
+builder.Services.AddHttpClient("SecurityApi", client =>
+{
+    client.BaseAddress = new Uri("http://localhost/IdenityApi/api/");
+});
+
+builder.Services.AddScoped<SecurityApiTransform>();
 
 //Add RateLImitter
 builder.Services.AddRateLinitingIpAddress();
@@ -45,7 +62,7 @@ List<KeyValuePair<string, string>> hcRout = new List<KeyValuePair<string, string
 app.MapSpeacificHelthCheck(hcRout);
 
 /*
-4-UseCors bolicy 
+ * TODO:
 5- load balancing 
  */
 app.Run();

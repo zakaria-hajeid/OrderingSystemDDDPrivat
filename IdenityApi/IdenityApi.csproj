@@ -26,4 +26,8 @@
     <ProjectReference Include="..\Service.Common\Service.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="JWTSetup\" />
+  </ItemGroup>
+
 </Project>

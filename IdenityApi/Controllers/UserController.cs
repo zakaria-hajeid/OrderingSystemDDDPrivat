@@ -1,4 +1,5 @@
-﻿using IdenityApi.Model;
+﻿using Azure.Core;
+using IdenityApi.Model;
 using IdenityApi.Models;
 using IdenityApi.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -26,11 +27,8 @@ namespace IdenityApi.Controllers
             {
                 ApplicationUser applicationUser = new ApplicationUser()
                 {
-                    CardNumber = createUserModel.CardNumber,
-                    Name = createUserModel.Name,
-                    SecurityNumber = createUserModel.SecurityNumber,
-                    CardHolderName = createUserModel.CardHolderName,
-                    UserName = createUserModel.Name
+                    UserName = createUserModel.Name,
+
                 };
 
                 return Ok(await _userService.CreateaUser(applicationUser, createUserModel.password));
@@ -71,6 +69,27 @@ namespace IdenityApi.Controllers
         {
 
             return Ok(await _userService.GetClaimToken(accessToken)); //edit response 
+        }
+        [Authorize]
+        [HttpGet("IsauthinticatedUser")]
+        public async Task<IActionResult> IsauthinticatedUser()
+        {
+
+            var authHeader = Request.Headers["Authorization"].ToString();
+
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                return Unauthorized("Missing or invalid Authorization header");
+
+
+            var token = authHeader.Substring("Bearer ".Length).Trim();
+            var result = await _userService.GetClaimToken(token);
+                if (result is not null)
+            {
+                return Ok();
+
+
+            }
+            return Unauthorized();
         }
 
     }

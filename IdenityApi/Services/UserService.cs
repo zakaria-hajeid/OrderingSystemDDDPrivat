@@ -76,7 +76,6 @@ namespace IdenityApi.Services
                 new Claim(ClaimTypes.Name,user.UserName),
                 new Claim(ClaimTypes.NameIdentifier,user.UserName)
             };
-               
 
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:SecretKey"]));
                 var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
