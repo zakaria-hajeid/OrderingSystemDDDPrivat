@@ -5,6 +5,7 @@ using IdenityApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Service.Common.Model;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -30,8 +31,8 @@ namespace IdenityApi.Controllers
                     UserName = createUserModel.Name,
 
                 };
-
-                return Ok(await _userService.CreateaUser(applicationUser, createUserModel.password));
+                var result = await _userService.CreateaUser(applicationUser, createUserModel.password, createUserModel.userRols);
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -44,8 +45,8 @@ namespace IdenityApi.Controllers
         {
             try
             {
-                string result = await _userService.SignIn(loginUserModel.userName, loginUserModel.Password);
-                if (string.IsNullOrEmpty(result))
+                var result = await _userService.SignIn(loginUserModel.userName, loginUserModel.Password);
+                if (!result.IsSuccess)
                 {
                     return BadRequest();
                 }
@@ -90,6 +91,12 @@ namespace IdenityApi.Controllers
 
             }
             return Unauthorized();
+        }
+
+        [HttpGet("TEst")]
+        public async Task<IActionResult> TEst()
+        {
+            return Ok();
         }
 
     }

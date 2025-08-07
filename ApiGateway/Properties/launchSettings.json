@@ -4,7 +4,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iis": {
-      "applicationUrl": "http://localhost/ApiGateway",
+      "applicationUrl": "http://o.z.apies:90/ApiGateway",
       "sslPort": 0
     }
   },
@@ -32,7 +32,7 @@
     "IIS": {
       "commandName": "IIS",
       "launchBrowser": true,
-      "launchUrl": "http://localhost/ApiGateway/",
+      "launchUrl": "http://o.z.apies:90/ApiGateway/swagger/index.html",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

@@ -38,7 +38,7 @@ builder.Services.AddOrderStatusChangeToSubmittedHandlerEventExtensions();
 
 
 var app = builder.Build();
-app.MapHub<NotificationsHub>("/hub/notificationhub");
+app.MapHub<OrderingHub>("/hub/OrderHub");
 
 
 

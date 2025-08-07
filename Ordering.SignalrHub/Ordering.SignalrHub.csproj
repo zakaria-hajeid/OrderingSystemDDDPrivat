@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.13" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.9" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
@@ -26,6 +26,15 @@
 
   <ItemGroup>
     <Folder Include="IntegrationEventHandling\IntegrationEvents\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\HtmlSignalR\chating.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\HtmlSignalR\signalR.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

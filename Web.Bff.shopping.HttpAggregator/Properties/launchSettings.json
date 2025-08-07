@@ -4,7 +4,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iis": {
-      "applicationUrl": "http://localhost/Web.Bff.shopping.HttpAggregator",
+      "applicationUrl": "http://o.z.apies:90/HttpAggregator",
       "sslPort": 0
     }
   },
@@ -32,7 +32,7 @@
     "IIS": {
       "commandName": "IIS",
       "launchBrowser": true,
-      "launchUrl": "http://localhost/Web.Bff.shopping.HttpAggregator/swagger/index.html",
+      "launchUrl": "http://o.z.apies:90/HttpAggregator/swagger/index.html",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

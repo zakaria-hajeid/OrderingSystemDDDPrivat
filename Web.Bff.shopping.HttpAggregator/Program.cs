@@ -58,6 +58,8 @@ app.UseSwaggerUI();
 app.UseCors(x => x.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+
 app.UseServiceDefaults();
 
 app.MapControllers();

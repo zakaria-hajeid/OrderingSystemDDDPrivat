@@ -22,6 +22,16 @@ builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetRequi
     }
 });
 
+//Add http cliebt policy if needed to each request in yarp configration 
+
+/*builder.Services.AddReverseProxy()
+    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
+    .ConfigureHttpClient((context, client) =>
+    {
+        // ÊåíÆÉ http client ÇáÎÇÕ ÈÜ YARP
+    })
+    */
+
 
 // Authintication api
 builder.Services.AddHttpClient("SecurityApi", client =>

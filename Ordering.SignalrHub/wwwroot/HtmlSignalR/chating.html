@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>محادثة خاصة - SignalR</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+
+        #chat-container {
+            max-width: 600px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        input, button {
+            padding: 8px;
+            margin: 5px 0;
+        }
+
+        #messages {
+            list-style: none;
+            padding: 0;
+        }
+
+            #messages li {
+                background: #e3e3e3;
+                margin-bottom: 5px;
+                padding: 10px;
+                border-radius: 5px;
+            }
+    </style>
+</head>
+<body>
+
+    <div id="chat-container">
+        <h2>🧑‍💻 محادثة بين مستخدمين</h2>
+
+        <input type="text" id="username" placeholder="اسمك">
+        <button onclick="register()">سجّل</button><br>
+
+        <input type="text" id="toUser" placeholder="أرسل إلى (اسم المستخدم)">
+        <input type="text" id="msg" placeholder="اكتب رسالة">
+        <button onclick="send()">أرسل</button>
+
+        <ul id="messages"></ul>
+    </div>
+
+    <script>
+        let connection;
+        let currentUser = "";
+
+        async function register() {
+            currentUser = document.getElementById("username").value;
+            if (!currentUser) {
+                alert("يرجى إدخال اسمك أولاً");
+                return;
+            }
+
+            connection = new signalR.HubConnectionBuilder()
+                .withUrl("/hub/chatingHub")
+                .configureLogging(signalR.LogLevel.Information)
+                .build();
+
+            connection.on("ReceivePrivateMessage", (from, msg) => {
+                const li = document.createElement("li");
+                li.textContent = `${from} ➡️ أنت: ${msg}`;
+                document.getElementById("messages").appendChild(li);
+            });
+
+            try {
+                await connection.start();
+                await connection.invoke("RegisterUser", currentUser);
+                console.log("✅ مسجل في النظام كمستخدم:", currentUser);
+            } catch (err) {
+                console.error("❌ فشل الاتصال:", err);
+            }
+        }
+
+        function send() {
+            const toUser = document.getElementById("toUser").value;
+            const msg = document.getElementById("msg").value;
+
+            if (!toUser || !msg) {
+                alert("أدخل اسم المستلم والرسالة");
+                return;
+            }
+
+            connection.invoke("SendPrivateMessage", currentUser, toUser, msg)
+                .then(() => {
+                    const li = document.createElement("li");
+                    li.textContent = `أنت ➡️ ${toUser}: ${msg}`;
+                    document.getElementById("messages").appendChild(li);
+                })
+                .catch(err => console.error("❌ فشل الإرسال:", err));
+        }
+    </script>
+
+</body>
+</html>

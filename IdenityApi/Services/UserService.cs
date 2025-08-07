@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-
+using Newtonsoft.Json;
+using Service.Common.Model;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -58,13 +59,23 @@ namespace IdenityApi.Services
             return await Task.FromResult(result);
         }
 
-        public async Task<IdentityResult> CreateaUser(ApplicationUser user, string password, List<string> userRols)
+        public async Task<ResponseModel<string>> CreateaUser(ApplicationUser user, string password, List<string> userRols)
 
         {
+            string guid = Guid.NewGuid().ToString();
+            var response = new ResponseModel<string>(guid);
             // إنشاء المستخدم
+            List<string> zz = new List<string>();
+            var x = JsonConvert.SerializeObject(zz);
+
             var result = await _userManager.CreateAsync(user, password);
             if (!result.Succeeded)
-                return result;
+            {
+                var errorsJson = JsonConvert.SerializeObject(result.Errors.Select(e => new { e.Code, e.Description }));
+                response.Failed(ErrorResponse.General.SpecificMessage(errorsJson));
+                return response;
+            }
+
 
             // التأكد من أن كل Role موجودة، إذا لا، يتم إنشاؤها
             foreach (var role in userRols.Distinct())
@@ -77,10 +88,10 @@ namespace IdenityApi.Services
                     {
                         // حذف المستخدم إذا فشل إنشاء الرول لتفادي حالات غير متسقة
                         await _userManager.DeleteAsync(user);
-                        return IdentityResult.Failed(new IdentityError
-                        {
-                            Description = $"Failed to create role '{role}'."
-                        });
+                        response.Failed(ErrorResponse.General.SpecificMessage($"Failed to create role '{role}'"));
+                        return response;
+
+
                     }
                 }
             }
@@ -91,10 +102,12 @@ namespace IdenityApi.Services
             {
                 // حذف المستخدم إذا فشل الربط
                 await _userManager.DeleteAsync(user);
-                return IdentityResult.Failed(addRoleResult.Errors.ToArray());
+                var errorsJson = JsonConvert.SerializeObject(addRoleResult.Errors.Select(e => new { e.Code, e.Description }));
+                response.Failed(ErrorResponse.General.SpecificMessage(errorsJson));
+                return response;
             }
-
-            return IdentityResult.Success;
+            response.Succeeded("Succes");
+            return response;
         }
 
         public async Task<IdentityResult> AddUserRole(ApplicationUser userId, string RoleName)
@@ -102,8 +115,11 @@ namespace IdenityApi.Services
             return await _userManager.AddToRoleAsync(userId, RoleName);
 
         }
-        public async Task<string> SignIn(string userName, string password)
+        public async Task<ResponseModel<string>> SignIn(string userName, string password)
         {
+            string guid = Guid.NewGuid().ToString();
+            var response = new ResponseModel<string>(guid);
+
             ApplicationUser? user = await _userManager.FindByNameAsync(userName);
             SignInResult result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
             if (result.Succeeded)
@@ -131,9 +147,11 @@ namespace IdenityApi.Services
                 var token = tokenHandler.CreateToken(tokenDescriptor);
 
                 string tokens = tokenHandler.WriteToken(token);
-                return tokens;
+                response.Succeeded(tokens);
+                return response;
             }
-            return string.Empty;
+            response.Failed(ErrorResponse.General.InvalidPermissions);
+            return response;
 
 
         }

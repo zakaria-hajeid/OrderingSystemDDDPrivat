@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>SignalR Client | Zakaria</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      color: #2b5876;
+      text-align: center;
+    }
+    #messages {
+      max-width: 600px;
+      margin: 20px auto;
+      background: #fff;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      list-style: none;
+    }
+    #messages li {
+      padding: 8px 12px;
+      border-bottom: 1px solid #eee;
+    }
+    #messages li:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+
+<h1>📡 SignalR Client - Zakaria</h1>
+<ul id="messages"></ul>
+
+<script>
+  const connection = new signalR.HubConnectionBuilder()
+    .withUrl("/hub/notificationhub") // غيّر المنفذ إذا لازم
+    .configureLogging(signalR.LogLevel.Information)
+    .build();
+
+  connection.on("ReceiveMessage", (user, message) => {
+    const li = document.createElement("li");
+    li.textContent = `${user}: ${message}`;
+    document.getElementById("messages").appendChild(li);
+  });
+
+  connection.start()
+    .then(() => {
+      console.log("✅ Connected to Hub");
+      return connection.invoke("JoinGroup", "zakaria");
+    })
+    .then(() => {
+      console.log("👥 Joined group: zakaria");
+    })
+    .catch(err => console.error("❌ Connection error:", err));
+</script>
+
+</body>
+</html>
